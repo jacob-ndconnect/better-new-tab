@@ -55,7 +55,11 @@ export function CommandPalette({
           <CommandGroup key={section.id} heading={section.name}>
             {section.links.map((link) => {
               const domain = getDomain(link.url)
-              const keywords = [link.label, domain].filter(Boolean)
+              const keywords: string[] = [
+                link.label,
+                domain,
+                ...(link.searchTerms ? [link.searchTerms] : []),
+              ]
 
               return (
                 <CommandItem
@@ -69,7 +73,9 @@ export function CommandPalette({
                       {link.badge.emoji}
                     </span>
                   )}
-                  <span className="truncate">{link.label}</span>
+                  <span className="truncate">
+                    {link.searchTerms ?? link.label}
+                  </span>
                 </CommandItem>
               )
             })}

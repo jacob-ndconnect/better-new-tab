@@ -32,6 +32,7 @@ export function LinkEditor({
 }: LinkEditorProps) {
   const [url, setUrl] = useState(() => link?.url ?? "")
   const [label, setLabel] = useState(() => link?.label ?? "")
+  const [searchTerms, setSearchTerms] = useState(() => link?.searchTerms ?? "")
   const [badgeEmoji, setBadgeEmoji] = useState(() => link?.badge?.emoji ?? "")
   const [badgeColor, setBadgeColor] = useState(
     () => link?.badge?.color ?? DEFAULT_BADGE_COLOR
@@ -56,6 +57,7 @@ export function LinkEditor({
       id: link?.id ?? crypto.randomUUID(),
       url: trimmedUrl,
       label: trimmedLabel,
+      searchTerms: searchTerms.trim() || undefined,
       badge:
         badgeEmoji.trim().length > 0
           ? { emoji: badgeEmoji.slice(0, 2), color: badgeColor }
@@ -110,6 +112,23 @@ export function LinkEditor({
               placeholder="Display name"
               onKeyDown={(e) => e.key === "Enter" && handleSave()}
             />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label
+              htmlFor="link-search-terms"
+              className="text-xs font-medium text-muted-foreground"
+            >
+              Search terms
+            </label>
+            <Input
+              id="link-search-terms"
+              value={searchTerms}
+              onChange={(e) => setSearchTerms(e.target.value)}
+              placeholder="Longer name for search (optional)"
+            />
+            <p className="text-xs text-muted-foreground">
+              Used in Cmd+K search, not shown on canvas or list.
+            </p>
           </div>
           <div className="flex flex-col gap-2">
             <label

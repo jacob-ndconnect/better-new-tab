@@ -7,6 +7,7 @@ export type Link = {
   id: string
   url: string
   label: string // custom display name
+  searchTerms?: string // optional; used for CommandPalette search
   badge?: BadgeStyle // optional corner badge
   customIcon?: string // optional base64 or URL for custom icon (future)
 }
