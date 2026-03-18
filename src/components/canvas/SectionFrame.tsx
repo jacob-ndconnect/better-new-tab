@@ -80,7 +80,7 @@ export function SectionFrame({
       {isDraggable && (
         <div
           className={cn(
-            "pointer-events-none absolute top-2 left-1/2 -mb-1 flex -translate-x-1/2 flex-col items-center gap-0.5 transition-opacity",
+            "pointer-events-none absolute top-2 left-1/2 -my-1 flex -translate-x-1/2 flex-col items-center gap-0.5 transition-opacity",
             !editMode && !isCardHovered && "opacity-0",
             !editMode && isCardHovered && "opacity-100"
           )}
@@ -122,7 +122,7 @@ export function SectionFrame({
               )}
               aria-label="Add link"
             >
-              <PlusIcon className="size-4" />
+              <PlusIcon className="size-5" />
             </button>
           )}
           <button
@@ -138,7 +138,7 @@ export function SectionFrame({
             )}
             aria-label="Edit section"
           >
-            <PencilIcon className="size-4" />
+            <PencilIcon className="size-5" />
           </button>
         </div>
       </div>
