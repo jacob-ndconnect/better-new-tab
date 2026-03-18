@@ -131,7 +131,10 @@ export function EditModeToolbar({
             {formatForDisplay(state.settings.searchShortcut)
               .split("+")
               .map((part) => (
-                <Kbd key={part} className="rounded-full">
+                <Kbd
+                  key={part}
+                  className="rounded-lg bg-muted text-muted-foreground"
+                >
                   {part}
                 </Kbd>
               ))}
@@ -150,32 +153,32 @@ export function EditModeToolbar({
               <GearIcon className="size-4" weight="regular" />
             </Button>
             <div className="flex items-center rounded-full border border-border bg-background/95 shadow-sm backdrop-blur">
-            <div className="flex">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setLayoutMode("canvas")}
-                className={cn(
-                  "cursor-pointer rounded-full border-0",
-                  layoutMode === "canvas" && "bg-muted"
-                )}
-                aria-pressed={layoutMode === "canvas"}
-              >
-                <SquaresFourIcon className="size-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setLayoutMode("list")}
-                className={cn(
-                  "cursor-pointer rounded-full border-0",
-                  layoutMode === "list" && "bg-muted"
-                )}
-                aria-pressed={layoutMode === "list"}
-              >
-                <ListIcon className="size-4" />
-              </Button>
-            </div>
+              <div className="flex">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setLayoutMode("canvas")}
+                  className={cn(
+                    "cursor-pointer rounded-full border-0",
+                    layoutMode === "canvas" && "bg-muted"
+                  )}
+                  aria-pressed={layoutMode === "canvas"}
+                >
+                  <SquaresFourIcon className="size-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setLayoutMode("list")}
+                  className={cn(
+                    "cursor-pointer rounded-full border-0",
+                    layoutMode === "list" && "bg-muted"
+                  )}
+                  aria-pressed={layoutMode === "list"}
+                >
+                  <ListIcon className="size-4" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
