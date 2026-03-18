@@ -1,21 +1,9 @@
-# React + TypeScript + Vite + shadcn/ui
+# A canvas-based new tab for people with too many pins
+As a founder with multiple projects, I need quick access to multiple links within the same TLD (vercel deployment pages for my landing page, web app, internal tooling, etc.).
+This is just a chill side project to build something less annoying to use, still a WIP!
 
-This is a template for a new Vite project with React, TypeScript, and shadcn/ui.
-
-## Adding components
-
-To add components to your app, run the following command:
-
-```bash
-npx shadcn@latest add button
-```
-
-This will place the ui components in the `src/components` directory.
-
-## Using components
-
-To use the components in your app, import them as follows:
-
-```tsx
-import { Button } from "@/components/ui/button"
-```
+## Features:
+- Multiple sections (with color-coding)
+- Optional pin badges for distinguishing different links from the same domain (dev vs prod, etc)
+- Canvas and List views (drag sections around like Figma, or see them in a vertical list)
+- Pin search (with keyboard shortcut)
