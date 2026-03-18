@@ -38,19 +38,19 @@ export function LinkCard({ link, editMode, onEdit }: LinkCardProps) {
     }
   }
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (editMode && onEdit) {
+      e.preventDefault()
       onEdit()
-    } else if (!editMode) {
-      window.location.href = link.url
     }
   }
 
   return (
-    <button
-      type="button"
+    <a
+      href={link.url}
+      rel="noopener noreferrer"
       onClick={handleClick}
-      className="group flex w-[80px] cursor-pointer flex-col items-center gap-2 rounded-2xl p-0 transition-opacity outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      className="group flex w-[80px] cursor-pointer flex-col items-center gap-2 rounded-2xl p-0 transition-opacity outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 no-underline text-inherit"
     >
       <div className="relative shrink-0">
         <div
@@ -95,6 +95,6 @@ export function LinkCard({ link, editMode, onEdit }: LinkCardProps) {
       <span className="max-w-[80px] truncate text-center text-xs text-muted-foreground">
         {link.label}
       </span>
-    </button>
+    </a>
   )
 }
