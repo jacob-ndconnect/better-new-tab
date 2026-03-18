@@ -154,7 +154,7 @@ export function SectionFrame({
             />
           </div>
         ))}
-        {editMode && onAddLink && (
+        {/* {editMode && onAddLink && (
           <button
             type="button"
             onClick={(e) => {
@@ -166,7 +166,7 @@ export function SectionFrame({
             <PlusIcon className="size-6" />
             <span className="text-xs">Add Link</span>
           </button>
-        )}
+        )} */}
       </div>
     </div>
   )
