@@ -5,6 +5,7 @@ import type { AppState, Section } from "../types"
 
 const DEFAULT_SETTINGS = {
   searchShortcut: "Mod+K",
+  sectionLabelSize: "text-lg" as const,
 } as const
 
 const DEFAULT_STATE: AppState = {
@@ -68,12 +69,18 @@ export function useStorage() {
         appState = { ...appState, sections: migrated }
         if (needsSave) chrome.storage.sync.set({ [STORAGE_KEY]: appState })
       }
-      if (!appState?.settings) {
-        appState = {
-          ...appState,
-          settings: { ...DEFAULT_SETTINGS, ...appState?.settings },
+      if (appState) {
+        const storedSettings = appState.settings
+        const mergedSettings = { ...DEFAULT_SETTINGS, ...storedSettings }
+        const needsPersist =
+          !storedSettings ||
+          (Object.keys(DEFAULT_SETTINGS) as (keyof typeof DEFAULT_SETTINGS)[]).some(
+            (k) => !(k in (storedSettings ?? {}))
+          )
+        appState = { ...appState, settings: mergedSettings }
+        if (needsPersist) {
+          chrome.storage.sync.set({ [STORAGE_KEY]: appState })
         }
-        chrome.storage.sync.set({ [STORAGE_KEY]: appState })
       }
       if (appState) setState(appState)
       setLoaded(true)

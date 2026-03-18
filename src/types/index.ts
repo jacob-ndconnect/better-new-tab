@@ -22,8 +22,18 @@ export type Section = {
   // Canvas mode size is auto — derived from number of links
 }
 
+export type SectionLabelSize =
+  | "text-xs"
+  | "text-sm"
+  | "text-base"
+  | "text-lg"
+  | "text-xl"
+  | "text-2xl"
+  | "text-3xl"
+
 export type Settings = {
   searchShortcut: string
+  sectionLabelSize: SectionLabelSize
 }
 
 export type AppState = {

@@ -52,7 +52,7 @@ function normalizePosition(
 }
 
 export function Canvas({ state, save, onEditSection, onEditLink, onAddLink }: CanvasProps) {
-  const { sections, editMode } = state
+  const { sections, editMode, settings } = state
   const sectionsWithPosition = sections.map((s, i) => ({
     ...s,
     position: normalizePosition(s.position, i),
@@ -154,6 +154,7 @@ export function Canvas({ state, save, onEditSection, onEditLink, onAddLink }: Ca
               section={section}
               editMode={editMode}
               isDraggable={!DRAGGABLE_ONLY_IN_EDIT || editMode}
+              sectionLabelSize={settings.sectionLabelSize}
               onEditSection={() => onEditSection(section)}
               onEditLink={(linkId) => onEditLink(section.id, linkId)}
               onAddLink={() => onAddLink(section.id)}

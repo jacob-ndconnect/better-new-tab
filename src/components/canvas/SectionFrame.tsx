@@ -5,13 +5,14 @@ import { CSS } from "@dnd-kit/utilities"
 import { LinkCard } from "./LinkCard"
 import { getContrastColor } from "@/lib/color"
 import { cn } from "@/lib/utils"
-import type { Section } from "@/types"
+import type { Section, SectionLabelSize } from "@/types"
 import { PencilIcon } from "@phosphor-icons/react/dist/ssr"
 
 type SectionFrameProps = {
   section: Section
   editMode: boolean
   isDraggable: boolean
+  sectionLabelSize?: SectionLabelSize
   onEditSection: () => void
   onEditLink: (linkId: string) => void
   onAddLink?: () => void
@@ -28,6 +29,7 @@ export function SectionFrame({
   section,
   editMode,
   isDraggable,
+  sectionLabelSize = "text-lg",
   onEditSection,
   onEditLink,
   onAddLink,
@@ -94,7 +96,10 @@ export function SectionFrame({
       )}
       <div className="group flex items-center justify-between gap-2 pb-2">
         <h3
-          className="shrink-0 rounded-md px-2 text-lg font-semibold whitespace-nowrap"
+          className={cn(
+            "shrink-0 rounded-md px-2 font-semibold whitespace-nowrap",
+            sectionLabelSize
+          )}
           style={{
             backgroundColor: section.accentColor,
             color: getContrastColor(section.accentColor),

@@ -8,7 +8,7 @@ import { SectionEditor } from "@/components/editor/SectionEditor"
 import { LinkEditor } from "@/components/editor/LinkEditor"
 import { SettingsDrawer } from "@/components/settings/SettingsDrawer"
 import { useStorage } from "@/hooks/useStorage"
-import { useHotkey } from "@tanstack/react-hotkeys"
+import { useHotkey, type RegisterableHotkey } from "@tanstack/react-hotkeys"
 import { useEscape } from "@/hooks/useEscape"
 import type { Section, Link } from "@/types"
 import { DotBackground } from "./components/canvas/DotGridBackground"
@@ -25,7 +25,7 @@ export function App() {
 
   const searchShortcut = state.settings.searchShortcut
   useHotkey(
-    searchShortcut,
+    searchShortcut as RegisterableHotkey,
     useCallback(() => setCommandOpen((prev) => !prev), [])
   )
 

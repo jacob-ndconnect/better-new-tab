@@ -10,12 +10,24 @@ import {
 import { Button } from "@/components/ui/button"
 import type { Settings } from "@/types"
 import { HotkeySetting } from "./HotkeySetting"
+import { SelectSetting } from "./SelectSetting"
+
+const SECTION_LABEL_SIZE_OPTIONS = [
+  { value: "text-xs", label: "Extra small" },
+  { value: "text-sm", label: "Small" },
+  { value: "text-base", label: "Base" },
+  { value: "text-lg", label: "Large" },
+  { value: "text-xl", label: "Extra large" },
+  { value: "text-2xl", label: "2XL" },
+  { value: "text-3xl", label: "3XL" },
+] as const
 
 export type SettingConfig = {
   id: keyof Settings
   label: string
   description?: string
-  type: "hotkey"
+  type: "hotkey" | "select"
+  options?: readonly { value: string; label: string }[]
 }
 
 const SETTINGS_CONFIG: SettingConfig[] = [
@@ -24,6 +36,13 @@ const SETTINGS_CONFIG: SettingConfig[] = [
     label: "Search shortcut",
     description: "Keyboard shortcut to open search",
     type: "hotkey",
+  },
+  {
+    id: "sectionLabelSize",
+    label: "Section label size",
+    description: "Font size for section headers in canvas",
+    type: "select",
+    options: SECTION_LABEL_SIZE_OPTIONS,
   },
 ]
 
@@ -77,6 +96,16 @@ export function SettingsDrawer({
                   label={config.label}
                   description={config.description}
                   value={settings[config.id] as string}
+                  onChange={(value) => handleSettingChange(config.id, value)}
+                />
+              )}
+              {config.type === "select" && config.options && (
+                <SelectSetting
+                  id={config.id}
+                  label={config.label}
+                  description={config.description}
+                  value={settings[config.id] as string}
+                  options={config.options}
                   onChange={(value) => handleSettingChange(config.id, value)}
                 />
               )}
