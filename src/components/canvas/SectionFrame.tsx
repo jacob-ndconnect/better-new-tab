@@ -1,11 +1,12 @@
 import { useEffect } from "react"
-import {  PlusIcon } from "@phosphor-icons/react"
+import { PlusIcon } from "@phosphor-icons/react"
 import { useDraggable } from "@dnd-kit/core"
 import { CSS } from "@dnd-kit/utilities"
 import { LinkCard } from "./LinkCard"
+import { getContrastColor } from "@/lib/color"
 import { cn } from "@/lib/utils"
 import type { Section } from "@/types"
-import { PencilIcon, } from "@phosphor-icons/react/dist/ssr"
+import { PencilIcon } from "@phosphor-icons/react/dist/ssr"
 
 type SectionFrameProps = {
   section: Section
@@ -58,12 +59,13 @@ export function SectionFrame({
         position: "absolute",
         left: position.x,
         top: position.y,
-        borderLeftColor: section.accentColor,
+        // borderLeftColor: section.accentColor,
+        borderColor: section.accentColor,
         ...style,
       }}
       {...(isDraggable ? { ...attributes, ...listeners } : {})}
       className={cn(
-        "flex min-w-[200px] flex-col gap-3 border border-l-4 border-border p-4 shadow-sm",
+        "flex min-w-[200px] flex-col gap-3 p-4 shadow-sm",
         isDraggable && "cursor-grab active:cursor-grabbing",
         isDragging && "z-50 opacity-90 shadow-lg",
         `bg-[${section.accentColor}]/10`
@@ -71,8 +73,11 @@ export function SectionFrame({
     >
       <div className="flex items-center justify-between gap-2">
         <h3
-          className="text-lg font-semibold"
-          style={{ color: section.accentColor }}
+          className="rounded-md px-2 text-lg font-semibold"
+          style={{
+            backgroundColor: section.accentColor,
+            color: getContrastColor(section.accentColor),
+          }}
         >
           {section.name}
         </h3>
@@ -91,7 +96,12 @@ export function SectionFrame({
         )}
       </div>
 
-      <div className="flex flex-wrap gap-4 overflow-visible pt-4 pr-4">
+      <div
+        className="flex flex-wrap gap-4 overflow-visible border border-border p-4"
+        style={{
+          borderColor: section.accentColor,
+        }}
+      >
         {section.links.map((link) => (
           <div key={link.id} className="pt-2 pr-2">
             <LinkCard
