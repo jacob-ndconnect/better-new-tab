@@ -7,7 +7,7 @@ import { EditModeToolbar } from "@/components/editor/EditModeToolbar"
 import { SectionEditor } from "@/components/editor/SectionEditor"
 import { LinkEditor } from "@/components/editor/LinkEditor"
 import { useStorage } from "@/hooks/useStorage"
-import { useKeyboard } from "@/hooks/useKeyboard"
+import { useHotkey } from "@tanstack/react-hotkeys"
 import { useEscape } from "@/hooks/useEscape"
 import type { Section, Link } from "@/types"
 import { DotBackground } from "./components/canvas/DotGridBackground"
@@ -21,7 +21,7 @@ export function App() {
   const [linkToEdit, setLinkToEdit] = useState<Link | null>(null)
   const [sectionIdForLink, setSectionIdForLink] = useState<string | null>(null)
 
-  useKeyboard(useCallback(() => setCommandOpen((prev) => !prev), []))
+  useHotkey("Mod+K", useCallback(() => setCommandOpen((prev) => !prev), []))
 
   const handleEscape = useCallback(() => {
     if (commandOpen) {

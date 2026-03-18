@@ -127,7 +127,7 @@ export function LinkEditor({
               placeholder="Longer name for search (optional)"
             />
             <p className="text-xs text-muted-foreground">
-              Used in Cmd+K search, not shown on canvas or list.
+              Used in Mod+K search, not shown on canvas or list.
             </p>
           </div>
           <div className="flex flex-col gap-2">

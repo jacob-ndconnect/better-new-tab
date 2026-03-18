@@ -13,6 +13,7 @@ import {
   FloppyDiskIcon,
   MagnifyingGlassIcon,
 } from "@phosphor-icons/react/dist/ssr"
+import { formatForDisplay } from "@tanstack/react-hotkeys"
 import { Kbd } from "../ui/kbd"
 import GradualBlurMemo from "../GradualBlur"
 
@@ -124,8 +125,13 @@ export function EditModeToolbar({
             <MagnifyingGlassIcon className="size-4" />
           </InputGroupAddon>
           <InputGroupAddon align="inline-end">
-            <Kbd className="rounded-full">Ctrk</Kbd>
-            <Kbd className="rounded-full">K</Kbd>
+            {formatForDisplay("Mod+K")
+              .split("+")
+              .map((part) => (
+                <Kbd key={part} className="rounded-full">
+                  {part}
+                </Kbd>
+              ))}
           </InputGroupAddon>
         </InputGroup>
 

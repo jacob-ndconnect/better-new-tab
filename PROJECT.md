@@ -60,10 +60,12 @@ Root component. Responsibilities:
 - **Migration:** `migrateSections` adds valid `position` for sections missing it (3-column grid)
 - **Guard:** `hasUserSavedRef` prevents initial load from overwriting user saves if load callback runs late
 
-### `src/hooks/useKeyboard.ts`
-**Purpose:** Cmd/Ctrl+K toggles a callback (used for CommandPalette).
+### TanStack HotKeys
+**Purpose:** Platform-aware keyboard shortcuts (Mod+K = ⌘K on Mac, Ctrl+K on Windows).
 
-- **Usage:** `useKeyboard(() => setCommandOpen(prev => !prev))`
+- **Provider:** `HotkeysProvider` wraps App in `main.tsx`
+- **CommandPalette:** `useHotkey('Mod+K', ...)` in App.tsx
+- **Display:** `formatForDisplay('Mod+K')` in EditModeToolbar for platform-appropriate key combo
 
 ### `src/hooks/useEscape.ts`
 **Purpose:** Escape key triggers a callback.
@@ -202,7 +204,6 @@ src/
 ├── types/index.ts
 ├── hooks/
 │   ├── useStorage.ts      # Chrome storage + state
-│   ├── useKeyboard.ts     # Cmd+K
 │   └── useEscape.ts       # Escape key
 ├── components/
 │   ├── canvas/
