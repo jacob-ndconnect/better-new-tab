@@ -137,6 +137,7 @@ export function Canvas({ state, save, onEditSection, onEditLink, onAddLink }: Ca
           editMode && "canvas-grid"
         )}
       >
+
         <div
           className="relative"
           style={{

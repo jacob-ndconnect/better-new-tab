@@ -10,6 +10,7 @@ import { useStorage } from "@/hooks/useStorage"
 import { useKeyboard } from "@/hooks/useKeyboard"
 import { useEscape } from "@/hooks/useEscape"
 import type { Section, Link } from "@/types"
+import { DotBackground } from "./components/canvas/DotGridBackground"
 
 export function App() {
   const { state, save, loaded } = useStorage()
@@ -134,13 +135,16 @@ export function App() {
       ) : (
         <div key={state.layoutMode} className="layout-transition fixed inset-0">
           {state.layoutMode === "canvas" ? (
-            <Canvas
-              state={state}
-              save={save}
-              onEditSection={openEditSection}
-              onEditLink={openEditLink}
-              onAddLink={openAddLink}
-            />
+            <>
+              <DotBackground className="fixed inset-0 bg-background" />
+              <Canvas
+                state={state}
+                save={save}
+                onEditSection={openEditSection}
+                onEditLink={openEditLink}
+                onAddLink={openAddLink}
+              />
+            </>
           ) : (
             <ListView
               sections={state.sections}
