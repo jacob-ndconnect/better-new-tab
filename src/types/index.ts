@@ -22,8 +22,13 @@ export type Section = {
   // Canvas mode size is auto — derived from number of links
 }
 
+export type Settings = {
+  searchShortcut: string
+}
+
 export type AppState = {
   sections: Section[]
   layoutMode: "canvas" | "list"
   editMode: boolean
+  settings: Settings
 }

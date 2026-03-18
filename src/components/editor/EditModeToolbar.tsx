@@ -11,6 +11,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group"
 import {
   ArrowClockwiseIcon,
   FloppyDiskIcon,
+  GearIcon,
   MagnifyingGlassIcon,
 } from "@phosphor-icons/react/dist/ssr"
 import { formatForDisplay } from "@tanstack/react-hotkeys"
@@ -55,6 +56,7 @@ type EditModeToolbarProps = {
   onAddSection: () => void
   searchOpen: boolean
   onSearchClick: () => void
+  onSettingsClick: () => void
 }
 
 export function EditModeToolbar({
@@ -63,6 +65,7 @@ export function EditModeToolbar({
   onAddSection,
   searchOpen,
   onSearchClick,
+  onSettingsClick,
 }: EditModeToolbarProps) {
   const { editMode, layoutMode } = state
 
@@ -125,7 +128,7 @@ export function EditModeToolbar({
             <MagnifyingGlassIcon className="size-4" />
           </InputGroupAddon>
           <InputGroupAddon align="inline-end">
-            {formatForDisplay("Mod+K")
+            {formatForDisplay(state.settings.searchShortcut)
               .split("+")
               .map((part) => (
                 <Kbd key={part} className="rounded-full">
@@ -136,8 +139,17 @@ export function EditModeToolbar({
         </InputGroup>
 
         <div className="flex justify-end">
-          {" "}
-          <div className="flex items-center rounded-full border border-border bg-background/95 shadow-sm backdrop-blur">
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onSettingsClick}
+              className="cursor-pointer rounded-full"
+              aria-label="Open settings"
+            >
+              <GearIcon className="size-4" weight="regular" />
+            </Button>
+            <div className="flex items-center rounded-full border border-border bg-background/95 shadow-sm backdrop-blur">
             <div className="flex">
               <Button
                 variant="ghost"
@@ -163,6 +175,7 @@ export function EditModeToolbar({
               >
                 <ListIcon className="size-4" />
               </Button>
+            </div>
             </div>
           </div>
         </div>

@@ -6,6 +6,7 @@ import { CommandPalette } from "@/components/search/CommandPalette"
 import { EditModeToolbar } from "@/components/editor/EditModeToolbar"
 import { SectionEditor } from "@/components/editor/SectionEditor"
 import { LinkEditor } from "@/components/editor/LinkEditor"
+import { SettingsDrawer } from "@/components/settings/SettingsDrawer"
 import { useStorage } from "@/hooks/useStorage"
 import { useHotkey } from "@tanstack/react-hotkeys"
 import { useEscape } from "@/hooks/useEscape"
@@ -15,16 +16,23 @@ import { DotBackground } from "./components/canvas/DotGridBackground"
 export function App() {
   const { state, save, loaded } = useStorage()
   const [commandOpen, setCommandOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const [sectionEditorOpen, setSectionEditorOpen] = useState(false)
   const [sectionToEdit, setSectionToEdit] = useState<Section | null>(null)
   const [linkEditorOpen, setLinkEditorOpen] = useState(false)
   const [linkToEdit, setLinkToEdit] = useState<Link | null>(null)
   const [sectionIdForLink, setSectionIdForLink] = useState<string | null>(null)
 
-  useHotkey("Mod+K", useCallback(() => setCommandOpen((prev) => !prev), []))
+  const searchShortcut = state.settings.searchShortcut
+  useHotkey(
+    searchShortcut,
+    useCallback(() => setCommandOpen((prev) => !prev), [])
+  )
 
   const handleEscape = useCallback(() => {
-    if (commandOpen) {
+    if (settingsOpen) {
+      setSettingsOpen(false)
+    } else if (commandOpen) {
       setCommandOpen(false)
     } else if (sectionEditorOpen) {
       setSectionEditorOpen(false)
@@ -34,6 +42,7 @@ export function App() {
       save((prev) => ({ ...prev, editMode: false }))
     }
   }, [
+    settingsOpen,
     commandOpen,
     sectionEditorOpen,
     linkEditorOpen,
@@ -167,6 +176,13 @@ export function App() {
         onAddSection={openAddSection}
         searchOpen={commandOpen}
         onSearchClick={() => setCommandOpen(true)}
+        onSettingsClick={() => setSettingsOpen(true)}
+      />
+      <SettingsDrawer
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
+        settings={state.settings}
+        onSave={(settings) => save((prev) => ({ ...prev, settings }))}
       />
       <SectionEditor
         open={sectionEditorOpen}

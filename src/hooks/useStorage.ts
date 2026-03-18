@@ -3,10 +3,15 @@
 import { useRef, useState, useEffect } from "react"
 import type { AppState, Section } from "../types"
 
+const DEFAULT_SETTINGS = {
+  searchShortcut: "Mod+K",
+} as const
+
 const DEFAULT_STATE: AppState = {
   sections: [],
   layoutMode: "canvas",
   editMode: false,
+  settings: { ...DEFAULT_SETTINGS },
 }
 
 const STORAGE_KEY = "appState"
@@ -62,6 +67,13 @@ export function useStorage() {
         )
         appState = { ...appState, sections: migrated }
         if (needsSave) chrome.storage.sync.set({ [STORAGE_KEY]: appState })
+      }
+      if (!appState?.settings) {
+        appState = {
+          ...appState,
+          settings: { ...DEFAULT_SETTINGS, ...appState?.settings },
+        }
+        chrome.storage.sync.set({ [STORAGE_KEY]: appState })
       }
       if (appState) setState(appState)
       setLoaded(true)
