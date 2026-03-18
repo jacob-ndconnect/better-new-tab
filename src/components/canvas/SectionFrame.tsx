@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { PlusIcon } from "@phosphor-icons/react"
 import { useDraggable } from "@dnd-kit/core"
 import { CSS } from "@dnd-kit/utilities"
@@ -48,6 +48,8 @@ export function SectionFrame({
       }
     : undefined
 
+  const [isCardHovered, setIsCardHovered] = useState(false)
+
   useEffect(() => {
     onTransformChange?.(section.id, transform ?? null)
   }, [section.id, transform, onTransformChange])
@@ -64,16 +66,35 @@ export function SectionFrame({
         ...style,
       }}
       {...(isDraggable ? { ...attributes, ...listeners } : {})}
+      onMouseEnter={() => setIsCardHovered(true)}
+      onMouseLeave={() => setIsCardHovered(false)}
       className={cn(
-        "flex min-w-[200px] flex-col gap-3 p-4 shadow-sm",
+        "group relative flex min-w-[200px] flex-col gap-0 rounded-2xl p-4 shadow-sm",
         isDraggable && "cursor-grab active:cursor-grabbing",
-        isDragging && "z-50 opacity-90 shadow-lg",
-        `bg-[${section.accentColor}]/10`
+        isDraggable && !isDragging && "hover:bg-white/5",
+        isDragging && "z-50 bg-white/10 shadow-lg"
       )}
     >
-      <div className="flex items-center justify-between gap-2">
+      {isDraggable && (
+        <div
+          className={cn(
+            "pointer-events-none absolute top-2 left-1/2 -mb-1 flex -translate-x-1/2 flex-col items-center gap-0.5 transition-opacity",
+            !editMode && !isCardHovered && "opacity-0",
+            !editMode && isCardHovered && "opacity-100"
+          )}
+          aria-hidden
+        >
+          {[1, 2].map((i) => (
+            <span
+              key={i}
+              className="h-[2px] w-5 rounded-full bg-muted-foreground/50"
+            />
+          ))}
+        </div>
+      )}
+      <div className="group flex items-center justify-between gap-2 pb-2">
         <h3
-          className="rounded-md px-2 text-lg font-semibold"
+          className="shrink-0 rounded-md px-2 text-lg font-semibold whitespace-nowrap"
           style={{
             backgroundColor: section.accentColor,
             color: getContrastColor(section.accentColor),
@@ -81,23 +102,44 @@ export function SectionFrame({
         >
           {section.name}
         </h3>
-        {editMode && (
+        <div className="flex shrink-0 items-center gap-0.5">
+          {onAddLink && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                onAddLink()
+              }}
+              className={cn(
+                "cursor-pointer rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+                !editMode &&
+                  "opacity-0 transition-opacity group-hover:opacity-100"
+              )}
+              aria-label="Add link"
+            >
+              <PlusIcon className="size-4" />
+            </button>
+          )}
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation()
               onEditSection()
             }}
-            className="shrink-0 rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className={cn(
+              "cursor-pointer rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+              !editMode &&
+                "opacity-0 transition-opacity group-hover:opacity-100"
+            )}
             aria-label="Edit section"
           >
             <PencilIcon className="size-4" />
           </button>
-        )}
+        </div>
       </div>
 
       <div
-        className="flex flex-wrap gap-4 overflow-visible border border-border p-4"
+        className="flex flex-wrap gap-4 overflow-visible rounded-md border border-border p-4"
         style={{
           borderColor: section.accentColor,
         }}
