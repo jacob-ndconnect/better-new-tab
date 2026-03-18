@@ -10,6 +10,7 @@ import { PencilIcon, } from "@phosphor-icons/react/dist/ssr"
 type SectionFrameProps = {
   section: Section
   editMode: boolean
+  isDraggable: boolean
   onEditSection: () => void
   onEditLink: (linkId: string) => void
   onAddLink?: () => void
@@ -25,6 +26,7 @@ const DEFAULT_POSITION = { x: 40, y: 40 }
 export function SectionFrame({
   section,
   editMode,
+  isDraggable,
   onEditSection,
   onEditLink,
   onAddLink,
@@ -36,7 +38,7 @@ export function SectionFrame({
     useDraggable({
       id: section.id,
       data: { section },
-      disabled: !editMode,
+      disabled: !isDraggable,
     })
 
   const style = transform
@@ -59,10 +61,10 @@ export function SectionFrame({
         borderLeftColor: section.accentColor,
         ...style,
       }}
-      {...(editMode ? { ...attributes, ...listeners } : {})}
+      {...(isDraggable ? { ...attributes, ...listeners } : {})}
       className={cn(
         "flex min-w-[200px] flex-col gap-3 border border-l-4 border-border p-4 shadow-sm",
-        editMode && "cursor-grab active:cursor-grabbing",
+        isDraggable && "cursor-grab active:cursor-grabbing",
         isDragging && "z-50 opacity-90 shadow-lg",
         `bg-[${section.accentColor}]/10`
       )}

@@ -10,6 +10,9 @@ import { SectionFrame } from "./SectionFrame"
 import { cn } from "@/lib/utils"
 import type { AppState, Section } from "@/types"
 
+/** When true, sections are only draggable in edit mode. When false, sections are always draggable. */
+const DRAGGABLE_ONLY_IN_EDIT = false
+
 type CanvasProps = {
   state: AppState
   save: (newStateOrUpdater: AppState | ((prev: AppState) => AppState)) => void
@@ -150,6 +153,7 @@ export function Canvas({ state, save, onEditSection, onEditLink, onAddLink }: Ca
               key={section.id}
               section={section}
               editMode={editMode}
+              isDraggable={!DRAGGABLE_ONLY_IN_EDIT || editMode}
               onEditSection={() => onEditSection(section)}
               onEditLink={(linkId) => onEditLink(section.id, linkId)}
               onAddLink={() => onAddLink(section.id)}
