@@ -1,10 +1,7 @@
 "use client"
 
 import * as React from "react"
-import {
-  Command as CommandPrimitive,
-  CommandDialog,
-} from "cmdk"
+import { Command as CommandPrimitive, CommandDialog } from "cmdk"
 import { MagnifyingGlassIcon } from "@phosphor-icons/react"
 
 import { cn } from "@/lib/utils"
@@ -29,7 +26,7 @@ const CommandInputWrapper = React.forwardRef<
   React.ComponentProps<typeof CommandPrimitive.Input>
 >(({ className, ...props }, ref) => (
   <div className="flex items-center border-b border-border px-3">
-    <MagnifyingGlassIcon className="mr-2 size-4 shrink-0 opacity-50" />
+    <MagnifyingGlassIcon className="mr-2 size-5 shrink-0 opacity-50" />
     <CommandPrimitive.Input
       ref={ref}
       className={cn(
@@ -40,7 +37,8 @@ const CommandInputWrapper = React.forwardRef<
     />
   </div>
 ))
-CommandInputWrapper.displayName = CommandPrimitive.Input.displayName ?? "CommandInput"
+CommandInputWrapper.displayName =
+  CommandPrimitive.Input.displayName ?? "CommandInput"
 
 const CommandListWrapper = React.forwardRef<
   React.ComponentRef<typeof CommandPrimitive.List>,
@@ -48,11 +46,15 @@ const CommandListWrapper = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CommandPrimitive.List
     ref={ref}
-    className={cn("max-h-[300px] overflow-y-auto overflow-x-hidden", className)}
+    className={cn(
+      "scrollbar-thin max-h-[300px] overflow-x-hidden overflow-y-auto",
+      className
+    )}
     {...props}
   />
 ))
-CommandListWrapper.displayName = CommandPrimitive.List.displayName ?? "CommandList"
+CommandListWrapper.displayName =
+  CommandPrimitive.List.displayName ?? "CommandList"
 
 const CommandEmptyWrapper = React.forwardRef<
   React.ComponentRef<typeof CommandPrimitive.Empty>,
@@ -64,7 +66,8 @@ const CommandEmptyWrapper = React.forwardRef<
     {...props}
   />
 ))
-CommandEmptyWrapper.displayName = CommandPrimitive.Empty.displayName ?? "CommandEmpty"
+CommandEmptyWrapper.displayName =
+  CommandPrimitive.Empty.displayName ?? "CommandEmpty"
 
 const CommandGroupWrapper = React.forwardRef<
   React.ComponentRef<typeof CommandPrimitive.Group>,
@@ -73,13 +76,14 @@ const CommandGroupWrapper = React.forwardRef<
   <CommandPrimitive.Group
     ref={ref}
     className={cn(
-      "overflow-hidden p-1 text-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground",
+      "overflow-hidden p-1 text-muted-foreground/70 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground/70",
       className
     )}
     {...props}
   />
 ))
-CommandGroupWrapper.displayName = CommandPrimitive.Group.displayName ?? "CommandGroup"
+CommandGroupWrapper.displayName =
+  CommandPrimitive.Group.displayName ?? "CommandGroup"
 
 const CommandItemWrapper = React.forwardRef<
   React.ComponentRef<typeof CommandPrimitive.Item>,
@@ -88,13 +92,14 @@ const CommandItemWrapper = React.forwardRef<
   <CommandPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center gap-2 rounded-none px-2 py-1.5 text-sm outline-none data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground",
+      "relative flex cursor-default items-center gap-2 rounded-none px-2 py-1.5 text-sm outline-none select-none data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground",
       className
     )}
     {...props}
   />
 ))
-CommandItemWrapper.displayName = CommandPrimitive.Item.displayName ?? "CommandItem"
+CommandItemWrapper.displayName =
+  CommandPrimitive.Item.displayName ?? "CommandItem"
 
 const CommandSeparatorWrapper = React.forwardRef<
   React.ComponentRef<typeof CommandPrimitive.Separator>,
@@ -106,7 +111,8 @@ const CommandSeparatorWrapper = React.forwardRef<
     {...props}
   />
 ))
-CommandSeparatorWrapper.displayName = CommandPrimitive.Separator.displayName ?? "CommandSeparator"
+CommandSeparatorWrapper.displayName =
+  CommandPrimitive.Separator.displayName ?? "CommandSeparator"
 
 function CommandDialogWrapper({
   children,

@@ -48,7 +48,10 @@ export function CommandPalette({
 
   return (
     <CommandDialog open={open} onOpenChange={onOpenChange} label="Search links">
-      <CommandInput placeholder="Search by name or domain..." />
+      <CommandInput
+        className="my-2 text-base"
+        placeholder="Search by name or domain..."
+      />
       <CommandList>
         <CommandEmpty>No links found.</CommandEmpty>
         {sections.map((section) => (
@@ -67,6 +70,7 @@ export function CommandPalette({
                   value={`${section.id}-${link.id}`}
                   keywords={keywords}
                   onSelect={handleSelect}
+                  className="cursor-pointer rounded-full px-2 py-1.5 text-base text-muted-foreground data-[selected=true]:bg-foreground/20 data-[selected=true]:text-foreground"
                 >
                   {link.badge?.emoji && (
                     <span className="shrink-0" aria-hidden>

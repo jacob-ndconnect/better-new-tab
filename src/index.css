@@ -135,6 +135,25 @@
   display: none;
 }
 
+/* Theme-aware scrollbar - uses CSS vars so it matches light/dark mode */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--muted-foreground) transparent;
+}
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--muted-foreground);
+  border-radius: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground);
+}
+
 .canvas-grid {
   background-image: radial-gradient(
     circle,
