@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils"
 import type { AppState } from "@/types"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group"
 import {
+  ArrowClockwiseIcon,
   FloppyDiskIcon,
   MagnifyingGlassIcon,
 } from "@phosphor-icons/react/dist/ssr"
@@ -179,8 +180,8 @@ export function EditModeToolbar({
           >
             <div className="flex items-center rounded-full border border-border bg-background/95 shadow-sm backdrop-blur">
               <Button
-                variant="ghost"
-                size="sm"
+                variant="secondary"
+                size="lg"
                 onClick={onAddSection}
                 className="cursor-pointer gap-1.5 rounded-full"
               >
@@ -191,10 +192,10 @@ export function EditModeToolbar({
                 state.sections.length > 0 &&
                 hasCustomLayout(state.sections) && (
                   <>
-                    <div className="h-5 w-px bg-border" aria-hidden />
+                    {/* <div className="h-5 w-px bg-border" aria-hidden /> */}
                     <Button
                       variant="ghost"
-                      size="sm"
+                      size="lg"
                       onClick={() =>
                         save((prev) => ({
                           ...prev,
@@ -204,6 +205,7 @@ export function EditModeToolbar({
                       className="cursor-pointer rounded-l-none text-xs text-muted-foreground"
                       title="Reset section positions to grid"
                     >
+                      <ArrowClockwiseIcon className="size-4" />
                       Reset positions
                     </Button>
                   </>
