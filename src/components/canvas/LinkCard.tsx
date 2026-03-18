@@ -1,6 +1,6 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { PencilIcon } from "@phosphor-icons/react"
-import { getFaviconUrl } from "@/lib/favicon"
+import { getFaviconFallbackUrl, getFaviconUrl } from "@/lib/favicon"
 import { cn } from "@/lib/utils"
 import type { Link } from "@/types"
 
@@ -17,10 +17,26 @@ function getPlaceholderColor(label: string): string {
 
 export function LinkCard({ link, editMode, onEdit }: LinkCardProps) {
   const [faviconError, setFaviconError] = useState(false)
+  const [useFallback, setUseFallback] = useState(false)
   const faviconUrl = getFaviconUrl(link.url)
-  const showPlaceholder = faviconError || !faviconUrl
+  const fallbackUrl = getFaviconFallbackUrl(link.url)
+  const currentSrc = useFallback ? fallbackUrl : faviconUrl
+  const showPlaceholder = faviconError || !currentSrc
   const placeholderColor = getPlaceholderColor(link.label)
   const firstLetter = link.label.charAt(0).toUpperCase() || "?"
+
+  useEffect(() => {
+    setFaviconError(false)
+    setUseFallback(false)
+  }, [link.url])
+
+  const handleFaviconError = () => {
+    if (!useFallback && fallbackUrl) {
+      setUseFallback(true)
+    } else {
+      setFaviconError(true)
+    }
+  }
 
   const handleClick = () => {
     if (editMode && onEdit) {
@@ -48,10 +64,10 @@ export function LinkCard({ link, editMode, onEdit }: LinkCardProps) {
             <span className="text-2xl font-semibold">{firstLetter}</span>
           ) : (
             <img
-              src={faviconUrl}
+              src={currentSrc}
               alt=""
               className="size-full object-cover"
-              onError={() => setFaviconError(true)}
+              onError={handleFaviconError}
             />
           )}
         </div>
