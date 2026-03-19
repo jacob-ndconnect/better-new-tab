@@ -1,141 +1,193 @@
-"use client"
-
 import * as React from "react"
-import { Command as CommandPrimitive, CommandDialog } from "cmdk"
-import { MagnifyingGlassIcon } from "@phosphor-icons/react"
+import { Command as CommandPrimitive } from "cmdk"
 
 import { cn } from "@/lib/utils"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
+  InputGroup,
+  InputGroupAddon,
+} from "@/components/ui/input-group"
+import { MagnifyingGlassIcon, CheckIcon } from "@phosphor-icons/react"
 
-const Command = React.forwardRef<
-  React.ComponentRef<typeof CommandPrimitive>,
-  React.ComponentProps<typeof CommandPrimitive>
->(({ className, ...props }, ref) => (
-  <CommandPrimitive
-    ref={ref}
-    className={cn(
-      "flex h-full w-full flex-col overflow-hidden rounded-none bg-popover text-popover-foreground",
-      className
-    )}
-    {...props}
-  />
-))
-Command.displayName = CommandPrimitive.displayName ?? "Command"
-
-const CommandInputWrapper = React.forwardRef<
-  React.ComponentRef<typeof CommandPrimitive.Input>,
-  React.ComponentProps<typeof CommandPrimitive.Input>
->(({ className, ...props }, ref) => (
-  <div className="flex items-center border-b border-border px-3">
-    <MagnifyingGlassIcon className="mr-2 size-5 shrink-0 opacity-50" />
-    <CommandPrimitive.Input
-      ref={ref}
+function Command({
+  className,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive>) {
+  return (
+    <CommandPrimitive
+      data-slot="command"
       className={cn(
-        "flex h-10 w-full rounded-none bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
+        "flex size-full flex-col overflow-hidden rounded-4xl bg-popover p-1 text-popover-foreground",
         className
       )}
       {...props}
     />
-  </div>
-))
-CommandInputWrapper.displayName =
-  CommandPrimitive.Input.displayName ?? "CommandInput"
+  )
+}
 
-const CommandListWrapper = React.forwardRef<
-  React.ComponentRef<typeof CommandPrimitive.List>,
-  React.ComponentProps<typeof CommandPrimitive.List>
->(({ className, ...props }, ref) => (
-  <CommandPrimitive.List
-    ref={ref}
-    className={cn(
-      "scrollbar-thin max-h-[300px] overflow-x-hidden overflow-y-auto",
-      className
-    )}
-    {...props}
-  />
-))
-CommandListWrapper.displayName =
-  CommandPrimitive.List.displayName ?? "CommandList"
+function CommandDialog({
+  title = "Command Palette",
+  description = "Search for a command to run...",
+  children,
+  className,
+  showCloseButton = false,
+  ...props
+}: React.ComponentProps<typeof Dialog> & {
+  title?: string
+  description?: string
+  className?: string
+  showCloseButton?: boolean
+}) {
+  return (
+    <Dialog {...props}>
+      <DialogHeader className="sr-only">
+        <DialogTitle>{title}</DialogTitle>
+        <DialogDescription>{description}</DialogDescription>
+      </DialogHeader>
+      <DialogContent
+        className={cn(
+          "top-1/3 translate-y-0 overflow-hidden rounded-4xl! p-0",
+          className
+        )}
+        showCloseButton={showCloseButton}
+      >
+        {children}
+      </DialogContent>
+    </Dialog>
+  )
+}
 
-const CommandEmptyWrapper = React.forwardRef<
-  React.ComponentRef<typeof CommandPrimitive.Empty>,
-  React.ComponentProps<typeof CommandPrimitive.Empty>
->(({ className, ...props }, ref) => (
-  <CommandPrimitive.Empty
-    ref={ref}
-    className={cn("py-6 text-center text-sm", className)}
-    {...props}
-  />
-))
-CommandEmptyWrapper.displayName =
-  CommandPrimitive.Empty.displayName ?? "CommandEmpty"
+function CommandInput({
+  className,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.Input>) {
+  return (
+    <div data-slot="command-input-wrapper" className="p-1 pb-0">
+      <InputGroup className="h-9 bg-input/30">
+        <CommandPrimitive.Input
+          data-slot="command-input"
+          className={cn(
+            "w-full text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
+            className
+          )}
+          {...props}
+        />
+        <InputGroupAddon>
+          <MagnifyingGlassIcon className="size-4 shrink-0 opacity-50" />
+        </InputGroupAddon>
+      </InputGroup>
+    </div>
+  )
+}
 
-const CommandGroupWrapper = React.forwardRef<
-  React.ComponentRef<typeof CommandPrimitive.Group>,
-  React.ComponentProps<typeof CommandPrimitive.Group>
->(({ className, ...props }, ref) => (
-  <CommandPrimitive.Group
-    ref={ref}
-    className={cn(
-      "overflow-hidden p-1 text-muted-foreground/70 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground/70",
-      className
-    )}
-    {...props}
-  />
-))
-CommandGroupWrapper.displayName =
-  CommandPrimitive.Group.displayName ?? "CommandGroup"
+function CommandList({
+  className,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.List>) {
+  return (
+    <CommandPrimitive.List
+      data-slot="command-list"
+      className={cn(
+        "no-scrollbar max-h-72 scroll-py-1 overflow-x-hidden overflow-y-auto outline-none",
+        className
+      )}
+      {...props}
+    />
+  )
+}
 
-const CommandItemWrapper = React.forwardRef<
-  React.ComponentRef<typeof CommandPrimitive.Item>,
-  React.ComponentProps<typeof CommandPrimitive.Item>
->(({ className, ...props }, ref) => (
-  <CommandPrimitive.Item
-    ref={ref}
-    className={cn(
-      "relative flex cursor-default items-center gap-2 rounded-none px-2 py-1.5 text-sm outline-none select-none data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground",
-      className
-    )}
-    {...props}
-  />
-))
-CommandItemWrapper.displayName =
-  CommandPrimitive.Item.displayName ?? "CommandItem"
+function CommandEmpty({
+  className,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.Empty>) {
+  return (
+    <CommandPrimitive.Empty
+      data-slot="command-empty"
+      className={cn("py-6 text-center text-sm", className)}
+      {...props}
+    />
+  )
+}
 
-const CommandSeparatorWrapper = React.forwardRef<
-  React.ComponentRef<typeof CommandPrimitive.Separator>,
-  React.ComponentProps<typeof CommandPrimitive.Separator>
->(({ className, ...props }, ref) => (
-  <CommandPrimitive.Separator
-    ref={ref}
-    className={cn("-mx-1 h-px bg-border", className)}
-    {...props}
-  />
-))
-CommandSeparatorWrapper.displayName =
-  CommandPrimitive.Separator.displayName ?? "CommandSeparator"
+function CommandGroup({
+  className,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.Group>) {
+  return (
+    <CommandPrimitive.Group
+      data-slot="command-group"
+      className={cn(
+        "overflow-hidden p-1 text-foreground **:[[cmdk-group-heading]]:px-3 **:[[cmdk-group-heading]]:py-2 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground",
+        className
+      )}
+      {...props}
+    />
+  )
+}
 
-function CommandDialogWrapper({
+function CommandSeparator({
+  className,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.Separator>) {
+  return (
+    <CommandPrimitive.Separator
+      data-slot="command-separator"
+      className={cn("my-1 h-px bg-border/50", className)}
+      {...props}
+    />
+  )
+}
+
+function CommandItem({
+  className,
   children,
   ...props
-}: React.ComponentProps<typeof CommandDialog>) {
+}: React.ComponentProps<typeof CommandPrimitive.Item>) {
   return (
-    <CommandDialog
+    <CommandPrimitive.Item
+      data-slot="command-item"
+      className={cn(
+        "group/command-item relative flex cursor-default items-center gap-2 rounded-lg px-3 py-2 text-sm outline-hidden select-none in-data-[slot=dialog-content]:rounded-2xl data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-selected:bg-muted data-selected:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-selected:*:[svg]:text-foreground",
+        className
+      )}
       {...props}
-      contentClassName="fixed top-1/2 left-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-lg border border-border bg-popover p-0 shadow-lg"
-      overlayClassName="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0"
     >
       {children}
-    </CommandDialog>
+      <CheckIcon className="ml-auto opacity-0 group-has-data-[slot=command-shortcut]/command-item:hidden group-data-[checked=true]/command-item:opacity-100" />
+    </CommandPrimitive.Item>
+  )
+}
+
+function CommandShortcut({
+  className,
+  ...props
+}: React.ComponentProps<"span">) {
+  return (
+    <span
+      data-slot="command-shortcut"
+      className={cn(
+        "ml-auto text-xs tracking-widest text-muted-foreground group-data-selected/command-item:text-foreground",
+        className
+      )}
+      {...props}
+    />
   )
 }
 
 export {
   Command,
-  CommandDialogWrapper as CommandDialog,
-  CommandEmptyWrapper as CommandEmpty,
-  CommandGroupWrapper as CommandGroup,
-  CommandInputWrapper as CommandInput,
-  CommandItemWrapper as CommandItem,
-  CommandListWrapper as CommandList,
-  CommandSeparatorWrapper as CommandSeparator,
+  CommandDialog,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandShortcut,
+  CommandSeparator,
 }

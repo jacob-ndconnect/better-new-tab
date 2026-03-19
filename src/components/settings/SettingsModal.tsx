@@ -70,7 +70,6 @@ export function SettingsModal({
       <DialogContent
         className="flex max-h-[90vh] min-h-[min(600px,90vh)] max-w-[560px] flex-col gap-0 p-0 sm:max-w-[720px]"
         showCloseButton={true}
-        overlayClassName="bg-black/50 backdrop-blur-sm"
       >
         <DialogHeader className="flex flex-row items-center justify-between gap-4 border-b px-4 py-3">
           <DialogTitle className="flex items-center gap-2">

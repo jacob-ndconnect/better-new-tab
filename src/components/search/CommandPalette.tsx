@@ -47,7 +47,7 @@ export function CommandPalette({
   )
 
   return (
-    <CommandDialog open={open} onOpenChange={onOpenChange} label="Search links">
+    <CommandDialog open={open} onOpenChange={onOpenChange} title="Search links">
       <CommandInput
         className="my-2 text-base"
         placeholder="Search by name or domain..."
