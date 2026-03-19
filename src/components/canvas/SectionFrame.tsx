@@ -73,8 +73,8 @@ export function SectionFrame({
       className={cn(
         "group relative flex min-w-[200px] flex-col gap-0 rounded-2xl p-4 shadow-sm",
         isDraggable && "cursor-grab active:cursor-grabbing",
-        isDraggable && !isDragging && "hover:bg-white/5",
-        isDragging && "z-50 bg-white/10 shadow-lg"
+        isDraggable && !isDragging && "hover:bg-white/5 hover:backdrop-blur-sm",
+        isDragging && "z-50 bg-white/10 shadow-lg backdrop-blur-sm"
       )}
     >
       {isDraggable && (
@@ -97,7 +97,7 @@ export function SectionFrame({
       <div className="group flex items-center justify-between gap-2 pb-2">
         <h3
           className={cn(
-            "shrink-0 rounded-md px-2 font-semibold whitespace-nowrap",
+            "shrink-0 rounded-full px-2 font-semibold whitespace-nowrap",
             sectionLabelSize
           )}
           style={{
@@ -144,7 +144,7 @@ export function SectionFrame({
       </div>
 
       <div
-        className="flex flex-wrap gap-4 overflow-visible rounded-md border border-border p-4"
+        className="flex flex-wrap gap-4 overflow-visible rounded-md border border-border bg-background/60 p-4 backdrop-blur-sm"
         style={{
           borderColor: section.accentColor,
         }}

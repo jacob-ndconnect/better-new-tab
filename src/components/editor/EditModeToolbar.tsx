@@ -82,7 +82,7 @@ export function EditModeToolbar({
       <GradualBlurMemo
         className="top-0 right-0 left-0"
         position="top"
-        strength={2}
+        strength={0.5}
         height="4rem"
         divCount={5}
         zIndex={0}
@@ -190,7 +190,7 @@ export function EditModeToolbar({
             className="right-0 bottom-0 left-0"
             position="bottom"
             target="page"
-            strength={2}
+            strength={0.5}
             height="4rem"
             divCount={5}
             zIndex={0}
