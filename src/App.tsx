@@ -6,7 +6,7 @@ import { CommandPalette } from "@/components/search/CommandPalette"
 import { EditModeToolbar } from "@/components/editor/EditModeToolbar"
 import { SectionEditor } from "@/components/editor/SectionEditor"
 import { LinkEditor } from "@/components/editor/LinkEditor"
-import { SettingsDrawer } from "@/components/settings/SettingsDrawer"
+import { SettingsModal } from "@/components/settings/SettingsModal"
 import { useStorage } from "@/hooks/useStorage"
 import { useHotkey, type RegisterableHotkey } from "@tanstack/react-hotkeys"
 import { useEscape } from "@/hooks/useEscape"
@@ -178,7 +178,7 @@ export function App() {
         onSearchClick={() => setCommandOpen(true)}
         onSettingsClick={() => setSettingsOpen(true)}
       />
-      <SettingsDrawer
+      <SettingsModal
         open={settingsOpen}
         onOpenChange={setSettingsOpen}
         settings={state.settings}
