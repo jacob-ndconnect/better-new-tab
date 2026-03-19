@@ -1,5 +1,5 @@
 import type { ComponentType, ElementType } from "react"
-import { GearIcon, HeartIcon, PaintBrushIcon } from "@phosphor-icons/react"
+import { KeyboardIcon, HeartIcon, PaintBrushIcon } from "@phosphor-icons/react"
 import type { Settings } from "@/types"
 import { SupportSectionContent } from "./SupportSection"
 
@@ -16,13 +16,21 @@ const SECTION_LABEL_SIZE_OPTIONS = [
   { value: "text-3xl", label: "3XL" },
 ] as const
 
-export type SettingConfig = {
-  id: keyof Settings
-  label: string
-  description?: string
-  type: "hotkey" | "select"
-  options?: readonly { value: string; label: string }[]
-}
+export type SettingConfig =
+  | {
+      id: keyof Settings
+      label: string
+      description?: string
+      type: "hotkey" | "select"
+      options?: readonly { value: string; label: string }[]
+    }
+  | {
+      id: "omniboxKeyword"
+      label: string
+      description?: string
+      type: "info"
+      infoValue: string
+    }
 
 export type SupportLink = {
   label: string
@@ -56,9 +64,9 @@ export const SUPPORT_CONFIG: SupportSectionConfig = {
 
 export const SETTINGS_SECTIONS: SettingsSection[] = [
   {
-    id: "general",
-    label: "General",
-    icon: GearIcon,
+    id: "keyboard",
+    label: "Keyboard shortcuts",
+    icon: KeyboardIcon,
     settings: [
       {
         id: "searchShortcut",
@@ -71,6 +79,14 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
         label: "Settings shortcut",
         description: "Keyboard shortcut to open settings",
         type: "hotkey",
+      },
+      {
+        id: "omniboxKeyword",
+        label: "Omnibox keyword",
+        description:
+          "Type this in the address bar to search pinned links. To change it: right-click the address bar → Manage search engines → find Better New Tab under Search engines.",
+        type: "info",
+        infoValue: "pin",
       },
     ],
   },

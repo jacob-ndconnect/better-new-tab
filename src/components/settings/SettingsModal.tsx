@@ -11,6 +11,7 @@ import type { Settings } from "@/types"
 import { SETTINGS_SECTIONS } from "./settingsConfig"
 import type { SettingConfig } from "./settingsConfig"
 import { HotkeySetting } from "./HotkeySetting"
+import { InfoSetting } from "./InfoSetting"
 import { SelectSetting } from "./SelectSetting"
 
 type SettingsModalProps = {
@@ -33,6 +34,16 @@ function renderSetting(
         description={config.description}
         value={settings[config.id] as string}
         onChange={(value) => onChange(config.id, value)}
+      />
+    )
+  }
+  if (config.type === "info" && config.infoValue) {
+    return (
+      <InfoSetting
+        key={config.id}
+        label={config.label}
+        description={config.description ?? ""}
+        value={config.infoValue}
       />
     )
   }
@@ -71,7 +82,7 @@ export function SettingsModal({
         className="flex max-h-[90vh] min-h-[min(600px,90vh)] max-w-[560px] flex-col gap-0 p-0 sm:max-w-[720px]"
         showCloseButton={true}
       >
-        <DialogHeader className="flex flex-row items-center justify-between gap-4 border-b px-4 py-3">
+        <DialogHeader className="flex flex-row items-center justify-between gap-4 border-b px-4 py-4 pr-12">
           <DialogTitle className="flex items-center gap-2">
             <GearIcon className="size-4" weight="regular" />
             Settings
@@ -85,13 +96,13 @@ export function SettingsModal({
           <div className="flex min-h-0 flex-1 flex-row">
             <TabsList
               variant="line"
-              className="h-auto w-40 shrink-0 flex-col items-stretch justify-start rounded-none border-r bg-transparent p-0"
+              className="h-auto w-fit min-w-40 shrink-0 flex-col items-stretch justify-start rounded-none border-r bg-transparent p-0"
             >
               {SETTINGS_SECTIONS.map((section) => (
                 <TabsTrigger
                   key={section.id}
                   value={section.id}
-                  className="cursor-pointer justify-start rounded-none border-r-0 px-4 py-2.5 data-[state=active]:border-r-2 data-[state=active]:border-primary data-[state=active]:bg-accent/50"
+                  className="cursor-pointer justify-start rounded-none border-r-2 border-transparent px-4 py-2 group-data-vertical/tabs:px-4 group-data-vertical/tabs:py-2 data-[state=active]:border-r-2 data-[state=active]:border-primary data-[state=active]:bg-accent/50"
                 >
                   {section.icon && (
                     <section.icon
