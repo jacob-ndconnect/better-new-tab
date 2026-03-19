@@ -24,9 +24,14 @@ export function App() {
   const [sectionIdForLink, setSectionIdForLink] = useState<string | null>(null)
 
   const searchShortcut = state.settings.searchShortcut
+  const settingsShortcut = state.settings.settingsShortcut
   useHotkey(
     searchShortcut as RegisterableHotkey,
     useCallback(() => setCommandOpen((prev) => !prev), [])
+  )
+  useHotkey(
+    settingsShortcut as RegisterableHotkey,
+    useCallback(() => setSettingsOpen(true), [])
   )
 
   const handleEscape = useCallback(() => {

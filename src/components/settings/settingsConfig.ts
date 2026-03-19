@@ -66,6 +66,12 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
         description: "Keyboard shortcut to open search",
         type: "hotkey",
       },
+      {
+        id: "settingsShortcut",
+        label: "Settings shortcut",
+        description: "Keyboard shortcut to open settings",
+        type: "hotkey",
+      },
     ],
   },
   {

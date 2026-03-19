@@ -33,6 +33,7 @@ export type SectionLabelSize =
 
 export type Settings = {
   searchShortcut: string
+  settingsShortcut: string
   sectionLabelSize: SectionLabelSize
 }
 

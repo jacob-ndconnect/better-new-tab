@@ -5,6 +5,7 @@ import type { AppState, Section } from "../types"
 
 const DEFAULT_SETTINGS = {
   searchShortcut: "Mod+K",
+  settingsShortcut: "Mod+,",
   sectionLabelSize: "text-lg" as const,
 } as const
 
