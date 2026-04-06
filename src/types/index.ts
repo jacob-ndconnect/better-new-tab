@@ -12,6 +12,11 @@ export type Link = {
   customIcon?: string // optional base64 or URL for custom icon (future)
 }
 
+export type StandaloneLinkEntry = {
+  link: Link
+  position: { x: number; y: number }
+}
+
 export type Section = {
   id: string
   name: string
@@ -37,8 +42,12 @@ export type Settings = {
   sectionLabelSize: SectionLabelSize
 }
 
+/** Synthetic section id for list view / search grouping (not stored on canvas). */
+export const UNGROUPED_SECTION_ID = "__ungrouped__"
+
 export type AppState = {
   sections: Section[]
+  standaloneLinks: StandaloneLinkEntry[]
   layoutMode: "canvas" | "list"
   editMode: boolean
   settings: Settings

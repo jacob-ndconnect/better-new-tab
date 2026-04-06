@@ -6,11 +6,12 @@ import {
   useSensors,
 } from "@dnd-kit/core"
 import type { DragEndEvent } from "@dnd-kit/core"
+import { FloatingLinkCard, FLOATING_LINK_ID_PREFIX } from "./FloatingLinkCard"
 import { SectionFrame } from "./SectionFrame"
 import { cn } from "@/lib/utils"
-import type { AppState, Section } from "@/types"
+import type { AppState, Section, StandaloneLinkEntry } from "@/types"
 
-/** When true, sections are only draggable in edit mode. When false, sections are always draggable. */
+/** `true` = drag only while edit mode is on. `false` = sections stay draggable in view mode (intended; handle shows on hover). */
 const DRAGGABLE_ONLY_IN_EDIT = false
 
 type CanvasProps = {
@@ -19,6 +20,7 @@ type CanvasProps = {
   onEditSection: (section: Section) => void
   onEditLink: (sectionId: string, linkId: string) => void
   onAddLink: (sectionId: string) => void
+  onEditStandaloneLink: (linkId: string) => void
 }
 
 const DEFAULT_POSITION = { x: 40, y: 40 }
@@ -51,12 +53,30 @@ function normalizePosition(
   }
 }
 
-export function Canvas({ state, save, onEditSection, onEditLink, onAddLink }: CanvasProps) {
-  const { sections, editMode, settings } = state
+function normalizeStandaloneEntry(
+  entry: StandaloneLinkEntry,
+  index: number
+): StandaloneLinkEntry {
+  const position = normalizePosition(entry.position, index)
+  return { ...entry, position }
+}
+
+export function Canvas({
+  state,
+  save,
+  onEditSection,
+  onEditLink,
+  onAddLink,
+  onEditStandaloneLink,
+}: CanvasProps) {
+  const { sections, standaloneLinks, editMode, settings } = state
   const sectionsWithPosition = sections.map((s, i) => ({
     ...s,
     position: normalizePosition(s.position, i),
   }))
+  const standaloneWithPosition = standaloneLinks.map((e, i) =>
+    normalizeStandaloneEntry(e, i)
+  )
   const transformRef = useRef<{ x: number; y: number } | null>(null)
   const startPositionRef = useRef<{ x: number; y: number } | null>(null)
 
@@ -73,6 +93,19 @@ export function Canvas({ state, save, onEditSection, onEditLink, onAddLink }: Ca
 
   const handleDragStart = (event: import("@dnd-kit/core").DragStartEvent) => {
     transformRef.current = null
+    const activeId = String(event.active.id)
+    if (activeId.startsWith(FLOATING_LINK_ID_PREFIX)) {
+      const linkId = activeId.slice(FLOATING_LINK_ID_PREFIX.length)
+      const entry = standaloneWithPosition.find((e) => e.link.id === linkId)
+      const pos = entry?.position ?? DEFAULT_POSITION
+      startPositionRef.current = { x: pos.x, y: pos.y }
+      console.log("[Canvas] dragStart", {
+        activeId: event.active.id,
+        standaloneLinkId: linkId,
+        startPos: startPositionRef.current,
+      })
+      return
+    }
     const section = sectionsWithPosition.find((s) => s.id === event.active.id)
     const pos = section?.position ?? DEFAULT_POSITION
     startPositionRef.current = { x: pos.x, y: pos.y }
@@ -103,6 +136,19 @@ export function Canvas({ state, save, onEditSection, onEditLink, onAddLink }: Ca
       y: Math.max(0, startPos.y + transform.y),
     }
 
+    const activeId = String(event.active.id)
+    if (activeId.startsWith(FLOATING_LINK_ID_PREFIX)) {
+      const linkId = activeId.slice(FLOATING_LINK_ID_PREFIX.length)
+      save((prev) => ({
+        ...prev,
+        standaloneLinks: prev.standaloneLinks.map((e) =>
+          e.link.id === linkId ? { ...e, position: newPosition } : e
+        ),
+      }))
+      console.log("[Canvas] saving standalone", { linkId, newPosition })
+      return
+    }
+
     save((prev) => {
       const newSections = prev.sections.map((s, i) => {
         const pos = normalizePosition(s.position, i)
@@ -125,7 +171,6 @@ export function Canvas({ state, save, onEditSection, onEditLink, onAddLink }: Ca
 
       return { ...prev, sections: newSections }
     })
-
   }
 
   return (
@@ -159,6 +204,16 @@ export function Canvas({ state, save, onEditSection, onEditLink, onAddLink }: Ca
               onEditLink={(linkId) => onEditLink(section.id, linkId)}
               onAddLink={() => onAddLink(section.id)}
               onDragEnd={() => {}}
+              onTransformChange={handleTransformChange}
+            />
+          ))}
+          {standaloneWithPosition.map((entry) => (
+            <FloatingLinkCard
+              key={entry.link.id}
+              entry={entry}
+              editMode={editMode}
+              isDraggable={!DRAGGABLE_ONLY_IN_EDIT || editMode}
+              onEdit={() => onEditStandaloneLink(entry.link.id)}
               onTransformChange={handleTransformChange}
             />
           ))}

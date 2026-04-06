@@ -13,6 +13,14 @@ import { useEscape } from "@/hooks/useEscape"
 import type { Section, Link } from "@/types"
 import { DotBackground } from "./components/canvas/DotGridBackground"
 
+type LinkEditorScope =
+  | { kind: "section"; sectionId: string }
+  | { kind: "standalone" }
+  | null
+
+const STANDALONE_SPAWN_BASE = 40
+const STANDALONE_SPAWN_STEP = 24
+
 export function App() {
   const { state, save, loaded } = useStorage()
   const [commandOpen, setCommandOpen] = useState(false)
@@ -21,7 +29,7 @@ export function App() {
   const [sectionToEdit, setSectionToEdit] = useState<Section | null>(null)
   const [linkEditorOpen, setLinkEditorOpen] = useState(false)
   const [linkToEdit, setLinkToEdit] = useState<Link | null>(null)
-  const [sectionIdForLink, setSectionIdForLink] = useState<string | null>(null)
+  const [linkEditorScope, setLinkEditorScope] = useState<LinkEditorScope>(null)
 
   const searchShortcut = state.settings.searchShortcut
   const settingsShortcut = state.settings.settingsShortcut
@@ -73,7 +81,7 @@ export function App() {
       const section = state.sections.find((s) => s.id === sectionId)
       const link = section?.links.find((l) => l.id === linkId) ?? null
       setLinkToEdit(link)
-      setSectionIdForLink(sectionId)
+      setLinkEditorScope({ kind: "section", sectionId })
       setLinkEditorOpen(true)
     },
     [state.sections]
@@ -81,9 +89,25 @@ export function App() {
 
   const openAddLink = useCallback((sectionId: string) => {
     setLinkToEdit(null)
-    setSectionIdForLink(sectionId)
+    setLinkEditorScope({ kind: "section", sectionId })
     setLinkEditorOpen(true)
   }, [])
+
+  const openAddStandaloneLink = useCallback(() => {
+    setLinkToEdit(null)
+    setLinkEditorScope({ kind: "standalone" })
+    setLinkEditorOpen(true)
+  }, [])
+
+  const openEditStandaloneLink = useCallback(
+    (linkId: string) => {
+      const entry = state.standaloneLinks.find((e) => e.link.id === linkId)
+      setLinkToEdit(entry?.link ?? null)
+      setLinkEditorScope({ kind: "standalone" })
+      setLinkEditorOpen(true)
+    },
+    [state.standaloneLinks]
+  )
 
   const handleSectionSave = useCallback(
     (section: Section) => {
@@ -100,10 +124,31 @@ export function App() {
 
   const handleLinkSave = useCallback(
     (link: Link) => {
-      if (!sectionIdForLink) return
+      if (!linkEditorScope) return
+      if (linkEditorScope.kind === "standalone") {
+        save((prev) => {
+          const idx = prev.standaloneLinks.findIndex((e) => e.link.id === link.id)
+          if (idx >= 0) {
+            const next = [...prev.standaloneLinks]
+            next[idx] = { ...next[idx], link }
+            return { ...prev, standaloneLinks: next }
+          }
+          const n = prev.standaloneLinks.length
+          const position = {
+            x: STANDALONE_SPAWN_BASE + n * STANDALONE_SPAWN_STEP,
+            y: STANDALONE_SPAWN_BASE + n * STANDALONE_SPAWN_STEP,
+          }
+          return {
+            ...prev,
+            standaloneLinks: [...prev.standaloneLinks, { link, position }],
+          }
+        })
+        return
+      }
+      const sectionId = linkEditorScope.sectionId
       save((prev) => {
         const newSections = prev.sections.map((s) => {
-          if (s.id !== sectionIdForLink) return s
+          if (s.id !== sectionId) return s
           const exists = s.links.some((l) => l.id === link.id)
           const newLinks = exists
             ? s.links.map((l) => (l.id === link.id ? link : l))
@@ -113,21 +158,29 @@ export function App() {
         return { ...prev, sections: newSections }
       })
     },
-    [save, sectionIdForLink]
+    [save, linkEditorScope]
   )
 
   const handleLinkDelete = useCallback(
     (linkId: string) => {
-      if (!sectionIdForLink) return
+      if (!linkEditorScope) return
+      if (linkEditorScope.kind === "standalone") {
+        save((prev) => ({
+          ...prev,
+          standaloneLinks: prev.standaloneLinks.filter((e) => e.link.id !== linkId),
+        }))
+        return
+      }
+      const sectionId = linkEditorScope.sectionId
       save((prev) => {
         const newSections = prev.sections.map((s) => {
-          if (s.id !== sectionIdForLink) return s
+          if (s.id !== sectionId) return s
           return { ...s, links: s.links.filter((l) => l.id !== linkId) }
         })
         return { ...prev, sections: newSections }
       })
     },
-    [save, sectionIdForLink]
+    [save, linkEditorScope]
   )
 
   if (!loaded) {
@@ -138,7 +191,8 @@ export function App() {
     )
   }
 
-  const isEmpty = state.sections.length === 0
+  const isEmpty =
+    state.sections.length === 0 && state.standaloneLinks.length === 0
 
   return (
     <>
@@ -157,15 +211,19 @@ export function App() {
                 onEditSection={openEditSection}
                 onEditLink={openEditLink}
                 onAddLink={openAddLink}
+                onEditStandaloneLink={openEditStandaloneLink}
               />
             </>
           ) : (
             <ListView
               sections={state.sections}
+              standaloneLinks={state.standaloneLinks}
               editMode={state.editMode}
               onEditSection={openEditSection}
               onEditLink={openEditLink}
               onAddLink={openAddLink}
+              onEditStandaloneLink={openEditStandaloneLink}
+              onAddStandaloneLink={openAddStandaloneLink}
             />
           )}
         </div>
@@ -174,11 +232,13 @@ export function App() {
         open={commandOpen}
         onOpenChange={setCommandOpen}
         sections={state.sections}
+        standaloneLinks={state.standaloneLinks}
       />
       <EditModeToolbar
         state={state}
         save={save}
         onAddSection={openAddSection}
+        onAddStandaloneLink={openAddStandaloneLink}
         searchOpen={commandOpen}
         onSearchClick={() => setCommandOpen(true)}
         onSettingsClick={() => setSettingsOpen(true)}

@@ -13,7 +13,8 @@ function getDomain(url: string): string {
 
 type Link = { id: string; url: string; label: string; searchTerms?: string }
 type Section = { id: string; name: string; links: Link[] }
-type AppState = { sections: Section[] }
+type StandaloneLinkEntry = { link: Link; position?: { x: number; y: number } }
+type AppState = { sections: Section[]; standaloneLinks?: StandaloneLinkEntry[] }
 
 function matchesQuery(link: Link, query: string): boolean {
   const q = query.toLowerCase().trim()
@@ -24,14 +25,27 @@ function matchesQuery(link: Link, query: string): boolean {
   return label.includes(q) || domain.includes(q) || terms.includes(q)
 }
 
-function filterLinks(sections: Section[], query: string): Array<{ link: Link; section: Section }> {
-  const results: Array<{ link: Link; section: Section }> = []
+function collectMatchingLinks(
+  sections: Section[],
+  standaloneLinks: StandaloneLinkEntry[],
+  query: string
+): Link[] {
+  const results: Link[] = []
   for (const section of sections) {
     for (const link of section.links) {
-      if (matchesQuery(link, query)) results.push({ link, section })
+      if (matchesQuery(link, query)) {
+        results.push(link)
+        if (results.length >= MAX_SUGGESTIONS) return results
+      }
     }
   }
-  return results.slice(0, MAX_SUGGESTIONS)
+  for (const { link } of standaloneLinks) {
+    if (matchesQuery(link, query)) {
+      results.push(link)
+      if (results.length >= MAX_SUGGESTIONS) return results
+    }
+  }
+  return results
 }
 
 function escapeXml(text: string): string {
@@ -49,8 +63,9 @@ chrome.omnibox.onInputChanged.addListener((text, suggest) => {
   chrome.storage.sync.get(STORAGE_KEY, (result) => {
     const appState = result[STORAGE_KEY] as AppState | undefined
     const sections = appState?.sections ?? []
-    const matches = filterLinks(sections, text)
-    const suggestions = matches.map(({ link }) => {
+    const standaloneLinks = appState?.standaloneLinks ?? []
+    const matches = collectMatchingLinks(sections, standaloneLinks, text)
+    const suggestions = matches.map((link) => {
       const domain = getDomain(link.url)
       const display = link.searchTerms ?? link.label
       const desc = domain ? `${escapeXml(display)} — ${escapeXml(domain)}` : escapeXml(display)
@@ -84,7 +99,8 @@ chrome.omnibox.onInputEntered.addListener((text, disposition) => {
   chrome.storage.sync.get(STORAGE_KEY, (result) => {
     const appState = result[STORAGE_KEY] as AppState | undefined
     const sections = appState?.sections ?? []
-    const matches = filterLinks(sections, text)
-    if (matches.length > 0) navigate(matches[0].link.url)
+    const standaloneLinks = appState?.standaloneLinks ?? []
+    const matches = collectMatchingLinks(sections, standaloneLinks, text)
+    if (matches.length > 0) navigate(matches[0].url)
   })
 })

@@ -1,9 +1,4 @@
-import {
-  PencilIcon,
-  PlusIcon,
-  SquaresFourIcon,
-  ListIcon,
-} from "@phosphor-icons/react"
+import { PencilIcon, SquaresFourIcon, ListIcon } from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import type { AppState } from "@/types"
@@ -12,7 +7,9 @@ import {
   ArrowClockwiseIcon,
   FloppyDiskIcon,
   GearIcon,
+  LinkSimpleIcon,
   MagnifyingGlassIcon,
+  SelectionPlusIcon,
 } from "@phosphor-icons/react/dist/ssr"
 import { formatForDisplay } from "@tanstack/react-hotkeys"
 import { Kbd } from "../ui/kbd"
@@ -54,6 +51,7 @@ type EditModeToolbarProps = {
   state: AppState
   save: (newStateOrUpdater: AppState | ((prev: AppState) => AppState)) => void
   onAddSection: () => void
+  onAddStandaloneLink: () => void
   searchOpen: boolean
   onSearchClick: () => void
   onSettingsClick: () => void
@@ -63,6 +61,7 @@ export function EditModeToolbar({
   state,
   save,
   onAddSection,
+  onAddStandaloneLink,
   searchOpen,
   onSearchClick,
   onSettingsClick,
@@ -205,10 +204,20 @@ export function EditModeToolbar({
                 variant="secondary"
                 size="lg"
                 onClick={onAddSection}
-                className="cursor-pointer gap-1.5 rounded-full"
+                className="m-1 cursor-pointer gap-1.5 rounded-full"
               >
-                <PlusIcon className="size-4" />
+                <SelectionPlusIcon className="size-4" />
                 <span className="hidden sm:inline">Add Section</span>
+              </Button>
+              <Button
+                variant="secondary"
+                size="lg"
+                onClick={onAddStandaloneLink}
+                className="m-1 cursor-pointer gap-1.5 rounded-full border-l border-border"
+                aria-label="Add link"
+              >
+                <LinkSimpleIcon className="size-4" />
+                <span className="hidden sm:inline">Add link</span>
               </Button>
               {layoutMode === "canvas" &&
                 state.sections.length > 0 &&

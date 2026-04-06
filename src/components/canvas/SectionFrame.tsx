@@ -40,7 +40,7 @@ export function SectionFrame({
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id: section.id,
-      data: { section },
+      data: { kind: "section" as const, section },
       disabled: !isDraggable,
     })
 

@@ -11,6 +11,7 @@ const DEFAULT_SETTINGS = {
 
 const DEFAULT_STATE: AppState = {
   sections: [],
+  standaloneLinks: [],
   layoutMode: "canvas",
   editMode: false,
   settings: { ...DEFAULT_SETTINGS },
@@ -73,13 +74,19 @@ export function useStorage() {
       if (appState) {
         const storedSettings = appState.settings
         const mergedSettings = { ...DEFAULT_SETTINGS, ...storedSettings }
-        const needsPersist =
+        const needsPersistSettings =
           !storedSettings ||
           (Object.keys(DEFAULT_SETTINGS) as (keyof typeof DEFAULT_SETTINGS)[]).some(
             (k) => !(k in (storedSettings ?? {}))
           )
-        appState = { ...appState, settings: mergedSettings }
-        if (needsPersist) {
+        const mergedStandalone = appState.standaloneLinks ?? []
+        const needsPersistStandalone = appState.standaloneLinks === undefined
+        appState = {
+          ...appState,
+          settings: mergedSettings,
+          standaloneLinks: mergedStandalone,
+        }
+        if (needsPersistSettings || needsPersistStandalone) {
           chrome.storage.sync.set({ [STORAGE_KEY]: appState })
         }
       }
@@ -97,6 +104,7 @@ export function useStorage() {
           : newStateOrUpdater
       console.log("[useStorage] save", {
         sectionsCount: newState.sections.length,
+        standaloneCount: newState.standaloneLinks.length,
         sections: newState.sections.map((s) => ({
           id: s.id,
           name: s.name,
