@@ -14,7 +14,7 @@ Inferred from the current codebase and architecture ([`PROJECT.md`](./PROJECT.md
 | **done** | Canvas section drag with `@dnd-kit` using draggable `transform` (not delta) for scrollable canvas ([`Canvas.tsx`](./src/components/canvas/Canvas.tsx), [`SectionFrame.tsx`](./src/components/canvas/SectionFrame.tsx)). |
 | **in-progress** | Production cleanup: `[Canvas]` and `[useStorage]` `console.log` calls still present ([`Canvas.tsx`](./src/components/canvas/Canvas.tsx), [`useStorage.ts`](./src/hooks/useStorage.ts)). |
 | **planned** | Implement `Link.customIcon` end-to-end ([`types/index.ts`](./src/types/index.ts) marks it optional/future; [`LinkCard.tsx`](./src/components/canvas/LinkCard.tsx) only uses favicon/letter). |
-| **planned** | Reorder links inside a section and/or reorder sections (list layout has fixed order; no `dnd-kit` on links today). |
+| **planned** | Reorder links inside a section and/or reorder sections (list layout has fixed order; cross-section link drag is done—see [`drag-links-between-sections.md`](./docs/features/drag-links-between-sections.md)). |
 | **planned** | Appearance parity: `settings.sectionLabelSize` applies to canvas headers only; list headers in [`SectionRow.tsx`](./src/components/list/SectionRow.tsx) use fixed classes. |
 | **planned** | Data portability: export/import `AppState` JSON and awareness of `chrome.storage.sync` size/item limits (relevant if `customIcon` stores base64). |
 | **planned** | Command palette navigation polish: today opens via `window.location.href` in the new tab page only; optional new-tab behavior or other dispositions if product needs it. |
@@ -24,7 +24,7 @@ Inferred from the current codebase and architecture ([`PROJECT.md`](./PROJECT.md
 | **planned** | Visual refresh—corkboard feel (texture, depth, pin metaphors), optional minimalist density, and more purposeful motion; mostly [`index.css`](./src/index.css), canvas chrome, and shared card styles. |
 | **planned** | Richer theming: presets or tokens beyond light/dark/system ([`theme-provider.tsx`](./src/components/theme-provider.tsx), settings + CSS variables). |
 | **planned** | Stronger link visual differentiation (variants, density, or non-badge cues) and better layouts for large sections (wrapping grids, row/column balance in [`SectionFrame`](./src/components/canvas/SectionFrame.tsx) / [`SectionRow`](./src/components/list/SectionRow.tsx)). |
-| **planned** | Drag-and-drop links between sections (cross-drop targets with `@dnd-kit`, immutably update `sections` via `save` in [`App.tsx`](./src/App.tsx)). |
+| **done** | Drag-and-drop links between sections / out to ungrouped: `@dnd-kit` handles + drop targets on canvas and list ([`docs/features/drag-links-between-sections.md`](./docs/features/drag-links-between-sections.md)); [`moveLinkInState`](./src/lib/linkMove.ts), [`Canvas.tsx`](./src/components/canvas/Canvas.tsx), [`ListView.tsx`](./src/components/list/ListView.tsx). |
 | **planned** | Browser data integration: surface bookmarks, Reading List, and/or history where Chrome APIs and privacy expectations allow (new permissions, likely background + optional UI modules). |
 
 Feature notes for **planned** and **in-progress** rows live under [`docs/features/`](./docs/features/).

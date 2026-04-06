@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react"
+import { useCallback, useRef, type RefObject } from "react"
 import {
   DndContext,
   PointerSensor,
@@ -6,7 +6,16 @@ import {
   useSensors,
 } from "@dnd-kit/core"
 import type { DragEndEvent } from "@dnd-kit/core"
-import { FloatingLinkCard, FLOATING_LINK_ID_PREFIX } from "./FloatingLinkCard"
+import {
+  DROP_STANDALONE_ID,
+  FLOATING_LINK_ID_PREFIX,
+  parseSectionLinkDragId,
+} from "@/components/dnd/linkDragIds"
+import { preferSectionOverStandalone } from "@/components/dnd/preferSectionDropCollision"
+import { applyLinkDragEnd } from "@/lib/applyLinkDragEnd"
+import { standalonePositionFromTranslatedRect } from "@/lib/canvasDropPosition"
+import { CanvasStandaloneDropLayer } from "./CanvasStandaloneDropLayer"
+import { FloatingLinkCard } from "./FloatingLinkCard"
 import { SectionFrame } from "./SectionFrame"
 import { cn } from "@/lib/utils"
 import type { AppState, Section, StandaloneLinkEntry } from "@/types"
@@ -61,6 +70,18 @@ function normalizeStandaloneEntry(
   return { ...entry, position }
 }
 
+function standaloneDropPositionFromDragEnd(
+  event: DragEndEvent,
+  placementRootRef: RefObject<HTMLDivElement | null>
+): { x: number; y: number } | undefined {
+  const over = event.over
+  if (!over || String(over.id) !== DROP_STANDALONE_ID) return undefined
+  const root = placementRootRef.current
+  const translated = event.active.rect.current.translated
+  if (!root || !translated) return undefined
+  return standalonePositionFromTranslatedRect(translated, root)
+}
+
 export function Canvas({
   state,
   save,
@@ -79,6 +100,7 @@ export function Canvas({
   )
   const transformRef = useRef<{ x: number; y: number } | null>(null)
   const startPositionRef = useRef<{ x: number; y: number } | null>(null)
+  const placementRootRef = useRef<HTMLDivElement | null>(null)
 
   const handleTransformChange = useCallback(
     (_id: string, transform: { x: number; y: number } | null) => {
@@ -94,26 +116,20 @@ export function Canvas({
   const handleDragStart = (event: import("@dnd-kit/core").DragStartEvent) => {
     transformRef.current = null
     const activeId = String(event.active.id)
+    if (parseSectionLinkDragId(activeId)) {
+      startPositionRef.current = null
+      return
+    }
     if (activeId.startsWith(FLOATING_LINK_ID_PREFIX)) {
       const linkId = activeId.slice(FLOATING_LINK_ID_PREFIX.length)
       const entry = standaloneWithPosition.find((e) => e.link.id === linkId)
       const pos = entry?.position ?? DEFAULT_POSITION
       startPositionRef.current = { x: pos.x, y: pos.y }
-      console.log("[Canvas] dragStart", {
-        activeId: event.active.id,
-        standaloneLinkId: linkId,
-        startPos: startPositionRef.current,
-      })
       return
     }
     const section = sectionsWithPosition.find((s) => s.id === event.active.id)
     const pos = section?.position ?? DEFAULT_POSITION
     startPositionRef.current = { x: pos.x, y: pos.y }
-    console.log("[Canvas] dragStart", {
-      activeId: event.active.id,
-      section: section?.name,
-      startPos: startPositionRef.current,
-    })
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -122,34 +138,36 @@ export function Canvas({
     const transform = transformRef.current
     transformRef.current = null
 
-    console.log("[Canvas] dragEnd", {
-      activeId: event.active.id,
-      startPos,
-      transform,
-      sectionsCount: sectionsWithPosition.length,
-    })
-
-    if (!startPos || !transform) return
-
-    const newPosition = {
-      x: Math.max(0, startPos.x + transform.x),
-      y: Math.max(0, startPos.y + transform.y),
-    }
-
-    const activeId = String(event.active.id)
-    if (activeId.startsWith(FLOATING_LINK_ID_PREFIX)) {
-      const linkId = activeId.slice(FLOATING_LINK_ID_PREFIX.length)
-      save((prev) => ({
-        ...prev,
-        standaloneLinks: prev.standaloneLinks.map((e) =>
-          e.link.id === linkId ? { ...e, position: newPosition } : e
-        ),
-      }))
-      console.log("[Canvas] saving standalone", { linkId, newPosition })
-      return
-    }
-
     save((prev) => {
+      if (editMode) {
+        const standaloneCanvasDropPosition = standaloneDropPositionFromDragEnd(
+          event,
+          placementRootRef
+        )
+        const linkPlaced = applyLinkDragEnd(event, prev, {
+          standaloneCanvasDropPosition,
+        })
+        if (linkPlaced) return linkPlaced
+      }
+
+      if (!startPos || !transform) return prev
+
+      const newPosition = {
+        x: Math.max(0, startPos.x + transform.x),
+        y: Math.max(0, startPos.y + transform.y),
+      }
+
+      const activeId = String(event.active.id)
+      if (activeId.startsWith(FLOATING_LINK_ID_PREFIX)) {
+        const linkId = activeId.slice(FLOATING_LINK_ID_PREFIX.length)
+        return {
+          ...prev,
+          standaloneLinks: prev.standaloneLinks.map((e) =>
+            e.link.id === linkId ? { ...e, position: newPosition } : e
+          ),
+        }
+      }
+
       const newSections = prev.sections.map((s, i) => {
         const pos = normalizePosition(s.position, i)
         const isActive = s.id === event.active.id
@@ -159,16 +177,6 @@ export function Canvas({
         }
       })
 
-      console.log("[Canvas] saving", {
-        newPosition,
-        newSectionsCount: newSections.length,
-        newSections: newSections.map((s) => ({
-          id: s.id,
-          name: s.name,
-          position: s.position,
-        })),
-      })
-
       return { ...prev, sections: newSections }
     })
   }
@@ -176,6 +184,7 @@ export function Canvas({
   return (
     <DndContext
       sensors={sensors}
+      collisionDetection={preferSectionOverStandalone}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
@@ -187,12 +196,14 @@ export function Canvas({
       >
 
         <div
+          ref={placementRootRef}
           className="relative"
           style={{
             minHeight: "max(100vh, 1200px)",
             minWidth: "max(100vw, 1200px)",
           }}
         >
+          <CanvasStandaloneDropLayer />
           {sectionsWithPosition.map((section) => (
             <SectionFrame
               key={section.id}

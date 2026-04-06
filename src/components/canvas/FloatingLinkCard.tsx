@@ -1,15 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useDndMonitor, useDraggable } from "@dnd-kit/core"
 import { CSS } from "@dnd-kit/utilities"
+import { floatingLinkDragId } from "@/components/dnd/linkDragIds"
 import { LinkCard } from "./LinkCard"
 import { cn } from "@/lib/utils"
 import type { StandaloneLinkEntry } from "@/types"
-
-export const FLOATING_LINK_ID_PREFIX = "float:" as const
-
-export function floatingLinkDragId(linkId: string): string {
-  return `${FLOATING_LINK_ID_PREFIX}${linkId}`
-}
 
 type FloatingLinkCardProps = {
   entry: StandaloneLinkEntry

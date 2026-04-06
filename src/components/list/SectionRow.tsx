@@ -1,6 +1,13 @@
 import { GearSixIcon, PlusIcon } from "@phosphor-icons/react"
+import { useDroppable } from "@dnd-kit/core"
 import { LinkCard } from "@/components/canvas/LinkCard"
+import { LinkDropTargetOverlay } from "@/components/dnd/LinkDropTargetOverlay"
+import { dropSectionDroppableId } from "@/components/dnd/linkDragIds"
+import { isActiveLinkDrag } from "@/components/dnd/isActiveLinkDrag"
+import { SectionLinkDraggable } from "@/components/dnd/SectionLinkDraggable"
+import { StandaloneListLinkDraggable } from "@/components/dnd/StandaloneListLinkDraggable"
 import type { Section } from "@/types"
+import { UNGROUPED_SECTION_ID } from "@/types"
 
 type SectionRowProps = {
   section: Section
@@ -17,6 +24,20 @@ export function SectionRow({
   onEditLink,
   onAddLink,
 }: SectionRowProps) {
+  const {
+    setNodeRef: setLinksDropRef,
+    isOver: isDropOverLinks,
+    active: dropContextActive,
+  } = useDroppable({
+    id: dropSectionDroppableId(section.id),
+    data: { kind: "section-drop" as const, sectionId: section.id },
+  })
+
+  const linkDropTargetActive =
+    isDropOverLinks && isActiveLinkDrag(dropContextActive)
+
+  const isUngrouped = section.id === UNGROUPED_SECTION_ID
+
   return (
     <section className="border-b border-border/60 py-6 last:border-b-0">
       <div className="mb-3 flex items-center gap-2">
@@ -42,16 +63,47 @@ export function SectionRow({
           </button>
         )}
       </div>
-      <div className="flex gap-4 overflow-x-auto pb-2 pt-4 pr-4">
-        {section.links.map((link) => (
-          <div key={link.id} className="shrink-0 pt-2 pr-2">
-            <LinkCard
+      <div
+        ref={setLinksDropRef}
+        className="relative flex gap-4 overflow-x-auto rounded-lg pb-2 pt-4 pr-4"
+      >
+        <LinkDropTargetOverlay
+          visible={linkDropTargetActive}
+          message={
+            isUngrouped ? "Move to Ungrouped" : "Move to this section"
+          }
+        />
+        {section.links.map((link) =>
+          isUngrouped ? (
+            <StandaloneListLinkDraggable
+              key={link.id}
+              linkId={link.id}
               link={link}
               editMode={editMode}
-              onEdit={onEditLink ? () => onEditLink(link.id) : undefined}
-            />
-          </div>
-        ))}
+            >
+              <LinkCard
+                link={link}
+                editMode={editMode}
+                onEdit={onEditLink ? () => onEditLink(link.id) : undefined}
+              />
+            </StandaloneListLinkDraggable>
+          ) : (
+            <SectionLinkDraggable
+              key={link.id}
+              sectionId={section.id}
+              linkId={link.id}
+              link={link}
+              editMode={editMode}
+              layout="list"
+            >
+              <LinkCard
+                link={link}
+                editMode={editMode}
+                onEdit={onEditLink ? () => onEditLink(link.id) : undefined}
+              />
+            </SectionLinkDraggable>
+          )
+        )}
         {editMode && onAddLink && (
           <button
             type="button"

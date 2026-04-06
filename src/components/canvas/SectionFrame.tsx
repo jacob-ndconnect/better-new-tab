@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react"
 import { PlusIcon } from "@phosphor-icons/react"
-import { useDraggable } from "@dnd-kit/core"
+import { useDraggable, useDroppable } from "@dnd-kit/core"
 import { CSS } from "@dnd-kit/utilities"
+import { LinkDropTargetOverlay } from "@/components/dnd/LinkDropTargetOverlay"
+import { dropSectionDroppableId } from "@/components/dnd/linkDragIds"
+import { isActiveLinkDrag } from "@/components/dnd/isActiveLinkDrag"
+import { SectionLinkDraggable } from "@/components/dnd/SectionLinkDraggable"
 import { LinkCard } from "./LinkCard"
 import { getContrastColor } from "@/lib/color"
 import { cn } from "@/lib/utils"
@@ -44,6 +48,18 @@ export function SectionFrame({
       disabled: !isDraggable,
     })
 
+  const {
+    setNodeRef: setLinksDropRef,
+    isOver: isDropOverLinks,
+    active: dropContextActive,
+  } = useDroppable({
+    id: dropSectionDroppableId(section.id),
+    data: { kind: "section-drop" as const, sectionId: section.id },
+  })
+
+  const linkDropTargetActive =
+    isDropOverLinks && isActiveLinkDrag(dropContextActive)
+
   const style = transform
     ? {
         transform: CSS.Translate.toString(transform),
@@ -67,24 +83,23 @@ export function SectionFrame({
         borderColor: section.accentColor,
         ...style,
       }}
-      {...(isDraggable ? { ...attributes, ...listeners } : {})}
       onMouseEnter={() => setIsCardHovered(true)}
       onMouseLeave={() => setIsCardHovered(false)}
       className={cn(
-        "group relative flex min-w-[200px] flex-col gap-0 rounded-2xl p-4 shadow-sm",
-        isDraggable && "cursor-grab active:cursor-grabbing",
+        "group relative z-1 flex min-w-[200px] flex-col gap-0 rounded-2xl p-4 shadow-sm",
         isDraggable && !isDragging && "hover:bg-white/5 hover:backdrop-blur-sm",
         isDragging && "z-50 bg-white/10 shadow-lg backdrop-blur-sm"
       )}
     >
       {isDraggable && (
         <div
+          {...(isDraggable ? { ...attributes, ...listeners } : {})}
           className={cn(
-            "pointer-events-none absolute top-2 left-1/2 -my-1 flex -translate-x-1/2 flex-col items-center gap-0.5 transition-opacity",
+            "absolute top-2 left-1/2 z-10 -my-1 flex -translate-x-1/2 cursor-grab flex-col items-center gap-0.5 transition-opacity active:cursor-grabbing",
             !editMode && !isCardHovered && "opacity-0",
             !editMode && isCardHovered && "opacity-100"
           )}
-          aria-hidden
+          aria-label="Drag section"
         >
           {[1, 2].map((i) => (
             <span
@@ -144,20 +159,30 @@ export function SectionFrame({
       </div>
 
       <div
-        className="flex flex-wrap gap-4 overflow-visible rounded-md border border-border bg-background/60 p-4 backdrop-blur-sm"
+        ref={setLinksDropRef}
+        className="relative flex flex-wrap gap-4 overflow-visible rounded-md border border-border bg-background/60 p-4 backdrop-blur-sm"
         style={{
           borderColor: section.accentColor,
         }}
       >
+        <LinkDropTargetOverlay
+          visible={linkDropTargetActive}
+          message="Move to this section"
+        />
         {section.links.map((link) => (
-          <div key={link.id} className="pt-2 pr-2">
+          <SectionLinkDraggable
+            key={link.id}
+            sectionId={section.id}
+            linkId={link.id}
+            link={link}
+            editMode={editMode}
+          >
             <LinkCard
-              key={link.id}
               link={link}
               editMode={editMode}
               onEdit={() => onEditLink(link.id)}
             />
-          </div>
+          </SectionLinkDraggable>
         ))}
         {/* {editMode && onAddLink && (
           <button

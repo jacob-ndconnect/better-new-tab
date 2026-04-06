@@ -1,26 +1,33 @@
 # Drag-and-drop links between sections
 
+## Status
+
+**Implemented** (canvas + list, edit mode for reparenting).
+
 ## Goal
 
-Move a link from one section to another (and optionally reorder within a section) using drag-and-drop, reusing the project’s `@dnd-kit` investment.
+Move links between sections or out to ungrouped (standalone) storage using drag-and-drop, reusing [`@dnd-kit/core`](https://docs.dndkit.com/).
 
-## Architecture fit
+## Behavior
 
-- **State:** `sections[].links` arrays updated immutably in `save((prev) => …)` from [`App.tsx`](../../src/App.tsx)—same pattern as [`handleLinkSave`](../../src/App.tsx) but splice/move across two sections.
-- **Canvas:** [`SectionFrame`](../../src/components/canvas/SectionFrame.tsx) link area becomes drop target; draggable `LinkCard` or wrapper; coordinate with existing section-level [`useDraggable`](../../src/components/canvas/SectionFrame.tsx) so link drag does not start a section drag (separate sensors or handles).
-- **List:** [`SectionRow`](../../src/components/list/SectionRow.tsx) horizontal lists need clear drop zones between sections.
+- **Edit mode:** Reparenting (section ↔ section, or ↔ ungrouped) runs only while [`editMode`](../../src/types/index.ts) is on. Repositioning existing canvas floating tiles when *not* in edit mode is unchanged.
+- **Canvas:** Use the **two-line grip** on a link (not the whole section). Drop on another section’s link area to move the link there, or on **empty canvas** (behind sections) to move it to **ungrouped** ([`standaloneLinks`](../../src/types/index.ts)). New ungrouped position uses the drop location ([`canvasDropPosition.ts`](../../src/lib/canvasDropPosition.ts), [`applyLinkDragEnd.ts`](../../src/lib/applyLinkDragEnd.ts)).
+- **List:** Same grip. Each row’s horizontal strip is a drop target. The **Ungrouped** row appears in edit mode even when empty so links can be dragged out of a section. **DragOverlay** renders the dragged card so it is not clipped by `overflow-x-auto` ([`ListView.tsx`](../../src/components/list/ListView.tsx)).
+- **Drop feedback:** While a link drag hovers a target, an overlay shows **“Move to this section”** (or **“Move to Ungrouped”** / **“Move outside sections”** on canvas) ([`LinkDropTargetOverlay.tsx`](../../src/components/dnd/LinkDropTargetOverlay.tsx), [`CanvasStandaloneDropLayer.tsx`](../../src/components/canvas/CanvasStandaloneDropLayer.tsx)). Highlights avoid `backdrop-blur` on full-canvas layers so the fixed dot background stays visible.
 
-## Constraints
+## Architecture
 
-- **Nested dnd-kit:** Section drag vs link drag is a classic conflict; likely need `DragOverlay`, custom collision detection, or drag handle on link only.
-- **Scroll containers:** Same lessons as canvas section drag ([`PROJECT.md`](../../PROJECT.md)—transform vs delta in scrollable areas).
-- **Edit mode:** Decide if cross-section moves are edit-only (consistent with adding links).
+- **State:** [`moveLinkInState`](../../src/lib/linkMove.ts) updates [`sections`](../../src/types/index.ts) and [`standaloneLinks`](../../src/types/index.ts) immutably; [`applyLinkDragEnd`](../../src/lib/applyLinkDragEnd.ts) interprets [`DragEndEvent`](https://docs.dndkit.com/api-documentation/context-provider#event-handlers) and is invoked from [`Canvas.tsx`](../../src/components/canvas/Canvas.tsx) and [`ListView.tsx`](../../src/components/list/ListView.tsx) via `save((prev) => …)`.
+- **IDs:** [`linkDragIds.ts`](../../src/components/dnd/linkDragIds.ts) — `slink:{sectionId}:{linkId}`, `float:{linkId}`, `drop-section:{sectionId}`, `drop-standalone` (canvas ungrouped zone).
+- **Section vs link drag:** Section move uses the **top handle** only; link drag uses the **link grip** ([`SectionFrame.tsx`](../../src/components/canvas/SectionFrame.tsx), [`SectionLinkDraggable.tsx`](../../src/components/dnd/SectionLinkDraggable.tsx)).
+- **Collision:** [`preferSectionOverStandalone`](../../src/components/dnd/preferSectionDropCollision.ts) prefers a section strip over the full-canvas standalone target when both hit.
+- **Active drag detection:** [`isActiveLinkDrag`](../../src/components/dnd/isActiveLinkDrag.ts) uses id prefixes with `active` from [`useDroppable`](https://docs.dndkit.com/api-documentation/droppable) so drop overlays stay in sync.
 
-## Open questions
+## Not in scope (yet)
 
-- Reorder-within-section in the same milestone as cross-section?
-- Undo / toast on accidental moves?
+- Reorder within a section via drag (links are appended to the target list today).
+- Undo / toast for accidental moves.
 
-## Notes / Rejected Ideas
+## Historical notes
 
--
+Earlier draft mentioned nested `dnd-kit` concerns and scroll quirks; the shipped approach uses drag handles, `DragOverlay` in list view, and pointer-based collision without extra blur on the canvas drop layer.

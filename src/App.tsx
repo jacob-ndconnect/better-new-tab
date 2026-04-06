@@ -219,6 +219,7 @@ export function App() {
               sections={state.sections}
               standaloneLinks={state.standaloneLinks}
               editMode={state.editMode}
+              save={save}
               onEditSection={openEditSection}
               onEditLink={openEditLink}
               onAddLink={openAddLink}
