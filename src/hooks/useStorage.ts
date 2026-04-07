@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from "react"
 import type { AppState, Section } from "../types"
 import { APP_STATE_STORAGE_KEY } from "@/lib/appStateStorageKey"
 import { DEFAULT_APP_STATE, DEFAULT_SETTINGS } from "@/lib/defaultAppState"
+import { extensionDebugLog } from "@/lib/extensionDebugLog"
 
 const DEFAULT_STATE: AppState = DEFAULT_APP_STATE
 
@@ -129,7 +130,7 @@ export function useStorage() {
         typeof newStateOrUpdater === "function"
           ? newStateOrUpdater(prev)
           : newStateOrUpdater
-      console.log("[useStorage] save", {
+      extensionDebugLog("[useStorage] save", {
         sectionsCount: newState.sections.length,
         standaloneCount: newState.standaloneLinks.length,
         sections: newState.sections.map((s) => ({

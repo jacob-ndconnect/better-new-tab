@@ -5,6 +5,9 @@ import { HotkeysProvider } from "@tanstack/react-hotkeys"
 import "./index.css"
 import App from "./App.tsx"
 import { ThemeProvider } from "@/components/theme-provider.tsx"
+import { hydrateExtensionRuntimeDebugFromStorage } from "@/lib/extensionDebugLog"
+
+hydrateExtensionRuntimeDebugFromStorage()
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
