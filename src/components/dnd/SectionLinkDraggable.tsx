@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
-import { useDraggable } from "@dnd-kit/core"
+import { useCallback, useEffect, useRef } from "react"
+import { useDndMonitor, useDraggable } from "@dnd-kit/core"
 import { CSS } from "@dnd-kit/utilities"
 import { cn } from "@/lib/utils"
 import type { Link } from "@/types"
@@ -24,9 +25,61 @@ export function SectionLinkDraggable({
   children,
 }: SectionLinkDraggableProps) {
   const enabled = editMode
+  const dragId = sectionLinkDragId(sectionId, linkId)
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  const blockClickRef = useRef<((e: Event) => void) | null>(null)
+  const cleanupTimerRef = useRef<number | null>(null)
+
+  const removeBlockClickListener = useCallback(() => {
+    if (cleanupTimerRef.current !== null) {
+      window.clearTimeout(cleanupTimerRef.current)
+      cleanupTimerRef.current = null
+    }
+    if (blockClickRef.current) {
+      document.removeEventListener("click", blockClickRef.current, {
+        capture: true,
+      })
+      blockClickRef.current = null
+    }
+  }, [])
+
+  useDndMonitor({
+    onDragStart(event) {
+      if (event.active.id !== dragId) return
+      removeBlockClickListener()
+      const container = containerRef.current
+      if (!container) return
+      const blockClickFromDrag = (e: Event) => {
+        if (!container.contains(e.target as Node)) return
+        e.preventDefault()
+        e.stopPropagation()
+      }
+      blockClickRef.current = blockClickFromDrag
+      document.addEventListener("click", blockClickFromDrag, { capture: true })
+    },
+    onDragEnd(event) {
+      if (event.active.id !== dragId) return
+      if (cleanupTimerRef.current !== null) {
+        window.clearTimeout(cleanupTimerRef.current)
+      }
+      cleanupTimerRef.current = window.setTimeout(() => {
+        cleanupTimerRef.current = null
+        removeBlockClickListener()
+      }, 500)
+    },
+    onDragCancel(event) {
+      if (event.active.id !== dragId) return
+      removeBlockClickListener()
+    },
+  })
+
+  useEffect(() => {
+    return () => removeBlockClickListener()
+  }, [removeBlockClickListener])
+
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
-      id: sectionLinkDragId(sectionId, linkId),
+      id: dragId,
       data: {
         kind: "section-link" as const,
         sectionId,
@@ -36,13 +89,21 @@ export function SectionLinkDraggable({
       disabled: !enabled,
     })
 
+  const setContainerRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      setNodeRef(node)
+      containerRef.current = node
+    },
+    [setNodeRef]
+  )
+
   const style = transform
     ? { transform: CSS.Translate.toString(transform) }
     : undefined
 
   return (
     <div
-      ref={setNodeRef}
+      ref={setContainerRef}
       style={style}
       {...(enabled ? listeners : {})}
       {...(enabled ? attributes : {})}

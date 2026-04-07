@@ -13,3 +13,9 @@ export function isActiveLinkDrag(active: Active | null | undefined): boolean {
     id.startsWith(FLOATING_LINK_ID_PREFIX)
   )
 }
+
+/** Section links only — not already-ungrouped floating links on the canvas. */
+export function isActiveSectionLinkDrag(active: Active | null | undefined): boolean {
+  if (!active) return false
+  return String(active.id).startsWith(SECTION_LINK_DRAG_PREFIX)
+}

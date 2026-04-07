@@ -13,14 +13,12 @@ import { useHotkey, type RegisterableHotkey } from "@tanstack/react-hotkeys"
 import { useEscape } from "@/hooks/useEscape"
 import type { Section, Link } from "@/types"
 import { DotBackground } from "./components/canvas/DotGridBackground"
+import { standaloneSpawnPosition } from "@/lib/standaloneSpawnPosition"
 
 type LinkEditorScope =
   | { kind: "section"; sectionId: string }
   | { kind: "standalone" }
   | null
-
-const STANDALONE_SPAWN_BASE = 40
-const STANDALONE_SPAWN_STEP = 24
 
 export function App() {
   const { state, save, loaded } = useStorage()
@@ -135,10 +133,7 @@ export function App() {
             return { ...prev, standaloneLinks: next }
           }
           const n = prev.standaloneLinks.length
-          const position = {
-            x: STANDALONE_SPAWN_BASE + n * STANDALONE_SPAWN_STEP,
-            y: STANDALONE_SPAWN_BASE + n * STANDALONE_SPAWN_STEP,
-          }
+          const position = standaloneSpawnPosition(n)
           return {
             ...prev,
             standaloneLinks: [...prev.standaloneLinks, { link, position }],

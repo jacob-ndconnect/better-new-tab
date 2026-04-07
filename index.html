@@ -5,13 +5,7 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>New Tab</title>
-    <script>
-      (function(){
-        var t=localStorage.getItem('theme');
-        var s=(t==='dark'||t==='light')?t:(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
-        document.documentElement.classList.add(s);
-      })();
-    </script>
+    <script type="module" src="/src/theme-init.ts"></script>
     <style>
       html{background:oklch(0.147 0.004 49.3)}
       html.light{background:oklch(1 0 0)}

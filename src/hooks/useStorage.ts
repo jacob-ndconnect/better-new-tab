@@ -2,27 +2,15 @@
 
 import { useRef, useState, useEffect } from "react"
 import type { AppState, Section } from "../types"
+import { APP_STATE_STORAGE_KEY } from "@/lib/appStateStorageKey"
+import { DEFAULT_APP_STATE, DEFAULT_SETTINGS } from "@/lib/defaultAppState"
 
-const DEFAULT_SETTINGS = {
-  searchShortcut: "Mod+K",
-  settingsShortcut: "Mod+,",
-  sectionLabelSize: "text-lg" as const,
-} as const
-
-const DEFAULT_STATE: AppState = {
-  sections: [],
-  standaloneLinks: [],
-  layoutMode: "canvas",
-  editMode: false,
-  settings: { ...DEFAULT_SETTINGS },
-}
+const DEFAULT_STATE: AppState = DEFAULT_APP_STATE
 
 function normalizeLayoutMode(mode: unknown): AppState["layoutMode"] {
   if (mode === "canvas" || mode === "list" || mode === "folders") return mode
   return "canvas"
 }
-
-const STORAGE_KEY = "appState"
 
 function isValidPosition(pos: unknown): pos is { x: number; y: number } {
   return (
@@ -59,22 +47,38 @@ function migrateSections(sections: Section[]): Section[] {
   })
 }
 
+/** Normalize payload from sync (initial load, storage.onChanged, background pin). */
+function normalizeStoredState(appState: AppState): AppState {
+  const sections =
+    appState.sections?.length > 0
+      ? migrateSections(appState.sections)
+      : (appState.sections ?? [])
+  return {
+    ...appState,
+    sections,
+    layoutMode: normalizeLayoutMode(appState.layoutMode),
+    settings: { ...DEFAULT_SETTINGS, ...appState.settings },
+    standaloneLinks: appState.standaloneLinks ?? [],
+    editMode: appState.editMode === true,
+  }
+}
+
 export function useStorage() {
   const [state, setState] = useState<AppState>(DEFAULT_STATE)
   const [loaded, setLoaded] = useState(false)
   const hasUserSavedRef = useRef(false)
 
   useEffect(() => {
-    chrome.storage.sync.get(STORAGE_KEY, (result) => {
+    chrome.storage.sync.get(APP_STATE_STORAGE_KEY, (result) => {
       if (hasUserSavedRef.current) return
-      let appState = result[STORAGE_KEY] as AppState | undefined
+      let appState = result[APP_STATE_STORAGE_KEY] as AppState | undefined
       if (appState?.sections?.length) {
         const migrated = migrateSections(appState.sections)
         const needsSave = migrated.some((_, i) =>
           !isValidPosition(appState!.sections[i]?.position)
         )
         appState = { ...appState, sections: migrated }
-        if (needsSave) chrome.storage.sync.set({ [STORAGE_KEY]: appState })
+        if (needsSave) chrome.storage.sync.set({ [APP_STATE_STORAGE_KEY]: appState })
       }
       if (appState) {
         const storedSettings = appState.settings
@@ -95,12 +99,27 @@ export function useStorage() {
           standaloneLinks: mergedStandalone,
         }
         if (needsPersistSettings || needsPersistStandalone || needsPersistLayout) {
-          chrome.storage.sync.set({ [STORAGE_KEY]: appState })
+          chrome.storage.sync.set({ [APP_STATE_STORAGE_KEY]: appState })
         }
       }
-      if (appState) setState(appState)
+      if (appState) setState(normalizeStoredState(appState))
       setLoaded(true)
     })
+  }, [])
+
+  useEffect(() => {
+    const onSync = (
+      changes: Record<string, chrome.storage.StorageChange>,
+      area: string
+    ) => {
+      if (area !== "sync") return
+      const change = changes[APP_STATE_STORAGE_KEY]
+      if (change?.newValue === undefined) return
+      setState(normalizeStoredState(change.newValue as AppState))
+      setLoaded(true)
+    }
+    chrome.storage.onChanged.addListener(onSync)
+    return () => chrome.storage.onChanged.removeListener(onSync)
   }, [])
 
   const save = (newStateOrUpdater: AppState | ((prev: AppState) => AppState)) => {
@@ -120,7 +139,7 @@ export function useStorage() {
         })),
       })
       queueMicrotask(() => {
-        chrome.storage.sync.set({ [STORAGE_KEY]: newState })
+        chrome.storage.sync.set({ [APP_STATE_STORAGE_KEY]: newState })
       })
       return newState
     })

@@ -1,20 +1,11 @@
 import type { AppState, Link } from "@/types"
 import { UNGROUPED_SECTION_ID } from "@/types"
-
-const STANDALONE_SPAWN_BASE = 40
-const STANDALONE_SPAWN_STEP = 24
+import { standaloneSpawnPosition } from "@/lib/standaloneSpawnPosition"
 
 type SectionPlacement = { kind: "section"; sectionId: string }
 
 function isUngrouped(sectionId: string): boolean {
   return sectionId === UNGROUPED_SECTION_ID
-}
-
-function defaultStandalonePosition(index: number): { x: number; y: number } {
-  return {
-    x: STANDALONE_SPAWN_BASE + index * STANDALONE_SPAWN_STEP,
-    y: STANDALONE_SPAWN_BASE + index * STANDALONE_SPAWN_STEP,
-  }
 }
 
 /**
@@ -56,7 +47,7 @@ export function moveLinkInState(
   if (isUngrouped(to.sectionId)) {
     const pos =
       opts?.standalonePosition ??
-      defaultStandalonePosition(standaloneLinks.length)
+      standaloneSpawnPosition(standaloneLinks.length)
     standaloneLinks = [...standaloneLinks, { link, position: pos }]
     return { ...prev, sections, standaloneLinks }
   }
