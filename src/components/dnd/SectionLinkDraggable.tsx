@@ -44,21 +44,19 @@ export function SectionLinkDraggable({
     <div
       ref={setNodeRef}
       style={style}
+      {...(enabled ? listeners : {})}
+      {...(enabled ? attributes : {})}
       className={cn(
         "relative pt-2 pr-2",
+        enabled && "cursor-grab touch-none active:cursor-grabbing",
         enabled && isDragging && layout === "canvas" && "z-50 opacity-90",
         enabled && isDragging && layout === "list" && "opacity-40"
       )}
     >
       {enabled && (
         <div
-          {...listeners}
-          {...attributes}
-          className={cn(
-            "absolute -top-0.5 left-1/2 z-10 flex -translate-x-1/2 cursor-grab flex-col items-center gap-0.5 active:cursor-grabbing",
-            "touch-none"
-          )}
-          aria-label="Drag link"
+          className="pointer-events-none absolute -top-0.5 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-0.5"
+          aria-hidden
         >
           {[1, 2].map((i) => (
             <span

@@ -48,7 +48,7 @@ export const UNGROUPED_SECTION_ID = "__ungrouped__"
 export type AppState = {
   sections: Section[]
   standaloneLinks: StandaloneLinkEntry[]
-  layoutMode: "canvas" | "list"
+  layoutMode: "canvas" | "list" | "folders"
   editMode: boolean
   settings: Settings
 }

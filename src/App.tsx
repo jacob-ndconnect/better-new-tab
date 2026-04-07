@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react"
 import { Canvas } from "@/components/canvas/Canvas"
 import { ListView } from "@/components/list/ListView"
+import { FolderView } from "@/components/folder/FolderView"
 import { EmptyState } from "@/components/EmptyState"
 import { CommandPalette } from "@/components/search/CommandPalette"
 import { EditModeToolbar } from "@/components/editor/EditModeToolbar"
@@ -204,7 +205,7 @@ export function App() {
         <div key={state.layoutMode} className="layout-transition fixed inset-0">
           {state.layoutMode === "canvas" ? (
             <>
-              <DotBackground className="fixed inset-0 bg-background" />
+              <DotBackground className="bg-background" />
               <Canvas
                 state={state}
                 save={save}
@@ -214,8 +215,20 @@ export function App() {
                 onEditStandaloneLink={openEditStandaloneLink}
               />
             </>
-          ) : (
+          ) : state.layoutMode === "list" ? (
             <ListView
+              sections={state.sections}
+              standaloneLinks={state.standaloneLinks}
+              editMode={state.editMode}
+              save={save}
+              onEditSection={openEditSection}
+              onEditLink={openEditLink}
+              onAddLink={openAddLink}
+              onEditStandaloneLink={openEditStandaloneLink}
+              onAddStandaloneLink={openAddStandaloneLink}
+            />
+          ) : (
+            <FolderView
               sections={state.sections}
               standaloneLinks={state.standaloneLinks}
               editMode={state.editMode}

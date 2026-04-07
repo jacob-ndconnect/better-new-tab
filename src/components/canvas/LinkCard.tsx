@@ -50,8 +50,13 @@ export function LinkCard({ link, editMode, onEdit }: LinkCardProps) {
     <a
       href={link.url}
       rel="noopener noreferrer"
+      draggable={editMode ? false : undefined}
       onClick={handleClick}
-      className="group flex w-[80px] cursor-pointer flex-col items-center gap-2 rounded-2xl p-0 text-inherit no-underline transition-opacity outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      onDragStart={editMode ? (e) => e.preventDefault() : undefined}
+      className={cn(
+        "group flex w-[80px] flex-col items-center gap-2 rounded-2xl p-0 text-inherit no-underline transition-opacity outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+        editMode ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"
+      )}
     >
       <div className="relative shrink-0">
         <div
@@ -69,6 +74,7 @@ export function LinkCard({ link, editMode, onEdit }: LinkCardProps) {
             <img
               src={currentSrc}
               alt=""
+              draggable={editMode ? false : undefined}
               className="size-full object-cover"
               onError={handleFaviconError}
             />

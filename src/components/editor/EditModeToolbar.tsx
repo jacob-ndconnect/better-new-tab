@@ -1,4 +1,9 @@
-import { PencilIcon, SquaresFourIcon, ListIcon } from "@phosphor-icons/react"
+import {
+  FoldersIcon,
+  PencilIcon,
+  SquaresFourIcon,
+  ListIcon,
+} from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import type { AppState } from "@/types"
@@ -72,7 +77,7 @@ export function EditModeToolbar({
     save({ ...state, editMode: !editMode })
   }
 
-  const setLayoutMode = (mode: "canvas" | "list") => {
+  const setLayoutMode = (mode: AppState["layoutMode"]) => {
     save({ ...state, layoutMode: mode })
   }
 
@@ -177,6 +182,19 @@ export function EditModeToolbar({
                 >
                   <ListIcon className="size-4" />
                 </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setLayoutMode("folders")}
+                  className={cn(
+                    "cursor-pointer rounded-full border-0",
+                    layoutMode === "folders" && "bg-muted"
+                  )}
+                  aria-pressed={layoutMode === "folders"}
+                  aria-label="Folders layout"
+                >
+                  <FoldersIcon className="size-4" />
+                </Button>
               </div>
             </div>
           </div>
@@ -205,9 +223,14 @@ export function EditModeToolbar({
                 size="lg"
                 onClick={onAddSection}
                 className="m-1 cursor-pointer gap-1.5 rounded-full"
+                aria-label={
+                  layoutMode === "folders" ? "Add folder" : "Add section"
+                }
               >
                 <SelectionPlusIcon className="size-4" />
-                <span className="hidden sm:inline">Add Section</span>
+                <span className="hidden sm:inline">
+                  {layoutMode === "folders" ? "Add folder" : "Add section"}
+                </span>
               </Button>
               <Button
                 variant="secondary"

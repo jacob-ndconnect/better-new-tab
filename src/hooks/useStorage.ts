@@ -17,6 +17,11 @@ const DEFAULT_STATE: AppState = {
   settings: { ...DEFAULT_SETTINGS },
 }
 
+function normalizeLayoutMode(mode: unknown): AppState["layoutMode"] {
+  if (mode === "canvas" || mode === "list" || mode === "folders") return mode
+  return "canvas"
+}
+
 const STORAGE_KEY = "appState"
 
 function isValidPosition(pos: unknown): pos is { x: number; y: number } {
@@ -81,12 +86,15 @@ export function useStorage() {
           )
         const mergedStandalone = appState.standaloneLinks ?? []
         const needsPersistStandalone = appState.standaloneLinks === undefined
+        const layoutMode = normalizeLayoutMode(appState.layoutMode)
+        const needsPersistLayout = layoutMode !== appState.layoutMode
         appState = {
           ...appState,
+          layoutMode,
           settings: mergedSettings,
           standaloneLinks: mergedStandalone,
         }
-        if (needsPersistSettings || needsPersistStandalone) {
+        if (needsPersistSettings || needsPersistStandalone || needsPersistLayout) {
           chrome.storage.sync.set({ [STORAGE_KEY]: appState })
         }
       }
