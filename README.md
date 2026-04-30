@@ -1,4 +1,6 @@
-# A canvas-based new tab for people with too many pins
+# Pegboard
+
+A canvas-based new tab for people with too many pins
 As a founder with multiple projects, I need quick access to multiple links within the same TLD (vercel deployment pages for my landing page, web app, internal tooling, etc.).
 This is just a chill side project to build something less annoying to use, still a WIP!
 

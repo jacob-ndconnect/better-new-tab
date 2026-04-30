@@ -89,7 +89,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
         id: "omniboxKeyword",
         label: "Omnibox keyword",
         description:
-          "Type this in the address bar to search pinned links. To change it: right-click the address bar → Manage search engines → find Better New Tab under Search engines.",
+          "Type this in the address bar to search pinned links. To change it: right-click the address bar → Manage search engines → find Pegboard under Search engines.",
         type: "info",
         infoValue: "pin",
       },

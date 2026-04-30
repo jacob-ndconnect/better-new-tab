@@ -1,4 +1,4 @@
-# Better New Tab — Project Reference
+# Pegboard — Project Reference
 
 A Chrome extension that replaces the default new tab page with a customizable command center. Users organize links into sections, view them in Canvas (free-form drag) or List layout, and search via a configurable shortcut (default Cmd/Ctrl+K). A separate shortcut opens Settings (default Mod+,).
 
@@ -139,7 +139,7 @@ Draggable section card (Canvas only).
 
 - **useDraggable** — `disabled` when `!isDraggable` (see `Canvas` and `DRAGGABLE_ONLY_IN_EDIT`)
 - **onTransformChange** — reports transform to parent for position calculation
-- **Renders:** Section title with `sectionLabelSize`; header actions (add link, edit section); bordered area of `LinkCards`; edit-mode corner resize (snaps by **link-tile** width via `LINK_CARD_WIDTH_PX` / `LINK_CARD_GAP_PX` in `canvasGrid.ts`; span = tiles per row, clamped `1…links.length`; explicit `section.canvasColumnSpan` when set, else default = link count). Debug: `localStorage.bntDebugSectionResize = "1"` on the new tab page → `[SectionResize]` logs in DevTools.
+- **Renders:** Section title with `sectionLabelSize`; header actions (add link, edit section); bordered area of `LinkCards`; edit-mode corner resize (snaps by **link-tile** width via `LINK_CARD_WIDTH_PX` / `LINK_CARD_GAP_PX` in `canvasGrid.ts`; span = tiles per row, clamped `1…links.length`; explicit `section.canvasColumnSpan` when set, else default = link count). Debug: `localStorage.pegboardDebugSectionResize = "1"` on the new tab page → `[SectionResize]` logs in DevTools.
 
 #### `LinkCard.tsx`
 

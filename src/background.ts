@@ -6,7 +6,7 @@ import { DEFAULT_APP_STATE, DEFAULT_SETTINGS } from "@/lib/defaultAppState"
 import { appendStandalonePin } from "@/lib/appendStandalonePin"
 
 const MAX_SUGGESTIONS = 6
-const CONTEXT_MENU_PIN_ID = "bnt-pin-to-standalone"
+const CONTEXT_MENU_PIN_ID = "pegboard-pin-to-standalone"
 
 function getDomain(url: string): string {
   try {
@@ -78,7 +78,7 @@ function registerContextMenus(): void {
   chrome.contextMenus.removeAll(() => {
     chrome.contextMenus.create({
       id: CONTEXT_MENU_PIN_ID,
-      title: "Pin to Better New Tab",
+      title: "Pin to Pegboard",
       contexts: ["page", "link"],
     })
   })

@@ -1,6 +1,6 @@
 /// <reference types="chrome" />
 
-const STORAGE_KEY = "bntDebug" as const
+const STORAGE_KEY = "pegboardDebug" as const
 
 let runtimeDebug = false
 
@@ -15,7 +15,7 @@ export function isExtensionDebugEnabled(): boolean {
   return isBuildTimeDebugEnabled() || runtimeDebug
 }
 
-/** Call once at startup; enables logs when `chrome.storage.local.bntDebug === true` (and on later changes). */
+/** Call once at startup; enables logs when `chrome.storage.local.pegboardDebug === true` (and on later changes). */
 export function hydrateExtensionRuntimeDebugFromStorage(): void {
   if (typeof chrome === "undefined" || !chrome.storage?.local) return
 
@@ -41,9 +41,9 @@ export function extensionDebugLog(...args: unknown[]): void {
   console.log(...args)
 }
 
-const SECTION_RESIZE_LS = "bntDebugSectionResize" as const
+const SECTION_RESIZE_LS = "pegboardDebugSectionResize" as const
 
-/** Section width resize: set `localStorage.bntDebugSectionResize = "1"` on the new tab page, then reload. */
+/** Section width resize: set `localStorage.pegboardDebugSectionResize = "1"` on the new tab page, then reload. */
 export function isSectionResizeDebugEnabled(): boolean {
   try {
     return (
