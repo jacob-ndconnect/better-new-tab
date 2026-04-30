@@ -78,7 +78,15 @@ Root component. Responsibilities:
 - **Reads/writes:** `canvasScrollAnchor` in `chrome.storage.local`; when `settings.canvasScrollSync` is true, also mirrors to `chrome.storage.sync`
 - **Restore:** On mount (if `canvasRememberScroll`), load anchor and apply after layout (double `requestAnimationFrame`); if none, scrolls to geometric center of scrollable content
 - **Save:** Debounced `scroll` (~200ms); flush on `visibilitychange` (hidden) / `pagehide`
-- **Resize:** When `canvasRestoreScrollOnResize`, a ref holds the **last content-space viewport center** (updated on scroll and after restore); after scrollport or content size changes, that point is re-centered (`ResizeObserver` + `window.resize`, coalesced with `requestAnimationFrame`). Recomputing the center from `scrollLeft`/`scrollTop` immediately after resize cancels the adjustment because `clientWidth`/`clientHeight` changed but scroll offsets have not.
+- **Resize:** When `canvasRestoreScrollOnResize`, a ref holds the **last content-space viewport center** (updated on scroll and after restore); after scrollport or content size changes, that point is re-centered (`ResizeObserver` + `window.resize`, coalesced with `requestAnimationFrame`). If the ref is still unset, it is seeded from the current viewport center before reclamp. Recomputing the center from `scrollLeft`/`scrollTop` immediately after resize cancels the adjustment because `clientWidth`/`clientHeight` changed but scroll offsets have not. The scroll listener and resize `ResizeObserver` attach in **`useLayoutEffect`** so subscriptions line up with committed refs.
+
+### `src/hooks/useCanvasPointerPan.ts`
+
+**Purpose:** Figma-style canvas pan without replacing native wheel scroll.
+
+- **Space:** When not typing in a field, `keydown` Space calls `preventDefault` (avoids page scroll) and tracks “hand tool”; that includes **repeat** `keydown` events while Space is held, which otherwise scroll the page. `keyup` / `window` `blur` clears it.
+- **Gestures:** `pointerdown` capture on the canvas scroll root — middle button (skips `a[href]`) or primary + Space — `preventDefault`/`stopPropagation`, `setPointerCapture`, adjust `scrollLeft`/`scrollTop` from pointer delta vs. gesture start.
+- **Resize / capture loss:** `window` `resize` and `blur` force-end an active pan (avoids global `pointermove` fighting `useCanvasScrollAnchor` reclamp); `onLostPointerCapture` clears grab state when the browser drops capture.
 
 ### TanStack HotKeys
 
@@ -120,7 +128,8 @@ Free-form canvas with drag-and-drop sections.
 - **Flow:** `SectionFrame` reports transform via `onTransformChange` → stored in `transformRef` → on `handleDragEnd`, `newPosition = startPos + transform`
 - **normalizePosition:** Ensures valid `{x,y}` or falls back to grid position
 - **Layout:** Scrollable outer div (`overflow-auto`) with `ref` for scroll persistence; inner `placementRootRef` supplies min size; in edit mode the canvas area uses the `canvas-grid` class for the dot grid (CSS in `index.css`)
-- **Scroll persistence:** `useCanvasScrollAnchor` saves the viewport center in content coordinates and restores on new tab; **Sync** tab: `canvasRememberScroll`, `canvasScrollSync`, `canvasRestoreScrollOnResize`
+- **Panning:** Native wheel/trackpad scroll unchanged. **Pointer pan** via `useCanvasPointerPan`: middle-mouse drag (except on `a[href]` so middle-click-open-in-tab still works) and **Space** + primary drag; capture-phase handlers adjust `scrollLeft`/`scrollTop` and block Chrome middle-click autoscroll on non-link targets.
+- **Scroll persistence:** `useCanvasScrollAnchor` saves the viewport center in content coordinates and restores on new tab (still driven by scroll events from wheel and pointer pan); **Sync** tab: `canvasRememberScroll`, `canvasScrollSync`, `canvasRestoreScrollOnResize`
 - **Settings:** Passes `settings.sectionLabelSize` into `SectionFrame`
 - **Drag gating:** `DRAGGABLE_ONLY_IN_EDIT` — kept `false` on purpose so sections remain draggable outside edit mode (drag handle appears on hover when not editing). Set to `true` to require edit mode for moves.
 
@@ -278,6 +287,7 @@ src/
 ├── hooks/
 │   ├── useStorage.ts       # Chrome storage + state + settings merge
 │   ├── useCanvasScrollAnchor.ts
+│   ├── useCanvasPointerPan.ts
 │   └── useEscape.ts        # Escape key
 ├── components/
 │   ├── canvas/

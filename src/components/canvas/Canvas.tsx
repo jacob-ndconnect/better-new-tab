@@ -1,4 +1,5 @@
 import { useCallback, useRef, type RefObject } from "react"
+import { useCanvasPointerPan } from "@/hooks/useCanvasPointerPan"
 import { useCanvasScrollAnchor } from "@/hooks/useCanvasScrollAnchor"
 import {
   DndContext,
@@ -105,6 +106,15 @@ export function Canvas({
     restoreOnResize: settings.canvasRestoreScrollOnResize,
   })
 
+  const {
+    onPointerDownCapture,
+    onLostPointerCapture,
+    spaceDown,
+    isPanning,
+  } = useCanvasPointerPan({
+    scrollRef: scrollContainerRef,
+  })
+
   const handleTransformChange = useCallback(
     (_id: string, transform: { x: number; y: number } | null) => {
       if (transform) transformRef.current = transform
@@ -193,9 +203,13 @@ export function Canvas({
     >
       <div
         ref={scrollContainerRef}
+        onPointerDownCapture={onPointerDownCapture}
+        onLostPointerCapture={onLostPointerCapture}
         className={cn(
           "absolute inset-0 overflow-auto scrollbar-none",
-          editMode && "canvas-grid"
+          editMode && "canvas-grid",
+          isPanning && "cursor-grabbing",
+          !isPanning && spaceDown && "cursor-grab"
         )}
       >
 

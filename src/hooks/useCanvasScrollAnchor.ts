@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useRef, type RefObject } from "react"
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  type RefObject,
+} from "react"
 import {
   applyScrollToCenter,
   readCanvasScrollAnchor,
@@ -53,8 +59,11 @@ export function useCanvasScrollAnchor({
       reclampRafRef.current = 0
       requestAnimationFrame(() => {
         const el = scrollRef.current
+        if (!el) return
+        if (!lastContentCenterRef.current) {
+          lastContentCenterRef.current = viewportCenterInContentSpace(el)
+        }
         const c = lastContentCenterRef.current
-        if (!el || !c) return
         applyScrollToCenter(el, c.centerX, c.centerY)
         lastContentCenterRef.current = viewportCenterInContentSpace(el)
       })
@@ -91,7 +100,7 @@ export function useCanvasScrollAnchor({
     }
   }, [remember, useSync, scrollRef])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!remember) return
     const el = scrollRef.current
     if (!el) return
@@ -128,7 +137,7 @@ export function useCanvasScrollAnchor({
     }
   }, [persistNow])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!remember || !restoreOnResize) return
     const scrollEl = scrollRef.current
     const contentEl = contentRef.current
