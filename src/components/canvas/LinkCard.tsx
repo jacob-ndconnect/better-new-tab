@@ -54,7 +54,7 @@ export function LinkCard({
   }
 
   return (
-    <div className="group relative flex w-[80px] flex-col items-center rounded-2xl p-0">
+    <div className="group/link-card relative flex w-[80px] flex-col items-center rounded-2xl p-0">
       {onEdit && (
         <button
           type="button"
@@ -65,8 +65,9 @@ export function LinkCard({
           }}
           onPointerDown={(e) => e.stopPropagation()}
           className={cn(
-            "absolute top-3 -right-3 z-20 cursor-pointer rounded-full bg-muted/40 p-1 text-muted-foreground transition-[opacity,background-color,color] duration-150 hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none",
-            !editMode && "-top-3 -right-3 opacity-0 group-hover:opacity-100"
+            "absolute top-3 -right-3 z-20 cursor-pointer rounded-full bg-muted/80 p-1 text-muted-foreground transition-[opacity,background-color,color] duration-150 hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none",
+            !editMode &&
+              "-top-0 -right-0 opacity-0 group-hover/link-card:opacity-100"
           )}
           aria-label="Edit link"
         >
@@ -128,7 +129,7 @@ export function LinkCard({
 
           {link.badge && (
             <span
-              className="absolute -top-1 -right-1 flex size-[22px] items-center justify-center rounded-full text-xs ring-2 ring-background"
+              className="absolute -right-1 -bottom-1 flex size-[22px] items-center justify-center rounded-full text-xs ring-2 ring-background"
               style={{ backgroundColor: link.badge.color }}
               aria-hidden
             >
@@ -138,7 +139,7 @@ export function LinkCard({
 
           {editMode && (
             <span
-              className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/20 opacity-0 transition-opacity group-hover:opacity-100"
+              className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/20 opacity-0 transition-opacity group-hover/link-card:opacity-100"
               aria-hidden
             >
               <PencilIcon className="size-6 text-white" weight="bold" />
