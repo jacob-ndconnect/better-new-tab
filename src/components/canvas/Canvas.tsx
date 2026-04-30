@@ -14,6 +14,7 @@ import {
 } from "@/components/dnd/linkDragIds"
 import { preferSectionOverStandalone } from "@/components/dnd/preferSectionDropCollision"
 import { applyLinkDragEnd } from "@/lib/applyLinkDragEnd"
+import { getDefaultCanvasSectionPosition } from "@/lib/canvasGrid"
 import { standalonePositionFromTranslatedRect } from "@/lib/canvasDropPosition"
 import { CanvasStandaloneDropLayer } from "./CanvasStandaloneDropLayer"
 import { FloatingLinkCard } from "./FloatingLinkCard"
@@ -34,9 +35,6 @@ type CanvasProps = {
 }
 
 const DEFAULT_POSITION = { x: 40, y: 40 }
-const GRID_GAP = 20
-const SECTION_WIDTH = 280
-const SECTION_HEIGHT = 200
 
 function normalizePosition(
   pos: { x: number; y: number } | undefined,
@@ -55,12 +53,7 @@ function normalizePosition(
   ) {
     return pos
   }
-  const col = index % 3
-  const row = Math.floor(index / 3)
-  return {
-    x: 40 + col * (SECTION_WIDTH + GRID_GAP),
-    y: 40 + row * (SECTION_HEIGHT + GRID_GAP),
-  }
+  return getDefaultCanvasSectionPosition(index)
 }
 
 function normalizeStandaloneEntry(
@@ -225,6 +218,16 @@ export function Canvas({
               onEditSection={() => onEditSection(section)}
               onEditLink={(linkId) => onEditLink(section.id, linkId)}
               onAddLink={() => onAddLink(section.id)}
+              onCanvasColumnSpanChange={(span) => {
+                save((prev) => ({
+                  ...prev,
+                  sections: prev.sections.map((s) =>
+                    s.id === section.id
+                      ? { ...s, canvasColumnSpan: span }
+                      : s
+                  ),
+                }))
+              }}
               onDragEnd={() => {}}
               onTransformChange={handleTransformChange}
             />

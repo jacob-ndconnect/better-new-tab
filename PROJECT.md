@@ -23,7 +23,7 @@ A Chrome extension that replaces the default new tab page with a customizable co
 | Type              | Description                                                                                    |
 | ----------------- | ---------------------------------------------------------------------------------------------- |
 | `Link`            | `id`, `url`, `label`, optional `searchTerms` (palette search only), optional `badge`, optional `customIcon` (unused in UI yet) |
-| `Section`         | `id`, `name`, `accentColor`, `links[]`, `position` (`x`, `y` for Canvas)                       |
+| `Section`         | `id`, `name`, `accentColor`, `links[]`, `position` (`x`, `y` for Canvas), optional `canvasColumnSpan` (link **tiles per row** on canvas; default = link count; width math in `canvasGrid.ts` — tile stride matches `LinkCard` + `SectionLinkDraggable` spacing) |
 | `SectionLabelSize`| Tailwind text classes (`text-xs` … `text-3xl`) for canvas section title typography              |
 | `Settings`        | `searchShortcut`, `settingsShortcut`, `sectionLabelSize`, `canvasRememberScroll`, `canvasScrollSync`, `canvasRestoreScrollOnResize` |
 | `AppState`        | `sections[]`, `layoutMode` ("canvas" \| "list"), `editMode`, `settings`                        |
@@ -130,7 +130,7 @@ Draggable section card (Canvas only).
 
 - **useDraggable** — `disabled` when `!isDraggable` (see `Canvas` and `DRAGGABLE_ONLY_IN_EDIT`)
 - **onTransformChange** — reports transform to parent for position calculation
-- **Renders:** Section title with `sectionLabelSize`; header actions (add link, edit section); bordered area of `LinkCards` (inline “add link” tile in the grid is currently commented out)
+- **Renders:** Section title with `sectionLabelSize`; header actions (add link, edit section); bordered area of `LinkCards`; edit-mode corner resize (snaps by **link-tile** width via `LINK_CARD_WIDTH_PX` / `LINK_CARD_GAP_PX` in `canvasGrid.ts`; span = tiles per row, clamped `1…links.length`; explicit `section.canvasColumnSpan` when set, else default = link count). Debug: `localStorage.bntDebugSectionResize = "1"` on the new tab page → `[SectionResize]` logs in DevTools.
 
 #### `LinkCard.tsx`
 

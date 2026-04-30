@@ -49,6 +49,7 @@ export function SectionEditor({
       accentColor,
       links: section?.links ?? [],
       position: section?.position ?? { x: 40, y: 40 },
+      canvasColumnSpan: section?.canvasColumnSpan,
     })
     onOpenChange(false)
   }

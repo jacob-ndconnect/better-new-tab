@@ -3,6 +3,10 @@
 import { useRef, useState, useEffect } from "react"
 import type { AppState, Section } from "../types"
 import { APP_STATE_STORAGE_KEY } from "@/lib/appStateStorageKey"
+import {
+  getDefaultCanvasSectionPosition,
+  normalizeCanvasColumnSpan,
+} from "@/lib/canvasGrid"
 import { DEFAULT_APP_STATE, DEFAULT_SETTINGS } from "@/lib/defaultAppState"
 import { extensionDebugLog } from "@/lib/extensionDebugLog"
 
@@ -29,22 +33,19 @@ function isValidPosition(pos: unknown): pos is { x: number; y: number } {
 }
 
 function migrateSections(sections: Section[]): Section[] {
-  const GRID_OFFSET = 40
-  const GRID_GAP = 20
-  const SECTION_WIDTH = 280
-  const SECTION_HEIGHT = 200
-
   return sections.map((section, index) => {
-    if (isValidPosition(section.position)) {
-      return section
+    let next = section
+    if (!isValidPosition(section.position)) {
+      next = { ...next, position: getDefaultCanvasSectionPosition(index) }
     }
-    const col = index % 3
-    const row = Math.floor(index / 3)
-    const position = {
-      x: GRID_OFFSET + col * (SECTION_WIDTH + GRID_GAP),
-      y: GRID_OFFSET + row * (SECTION_HEIGHT + GRID_GAP),
+    const rawSpan = next.canvasColumnSpan
+    if (
+      rawSpan !== undefined &&
+      normalizeCanvasColumnSpan(rawSpan) !== rawSpan
+    ) {
+      next = { ...next, canvasColumnSpan: normalizeCanvasColumnSpan(rawSpan) }
     }
-    return { ...section, position }
+    return next
   })
 }
 
@@ -75,9 +76,15 @@ export function useStorage() {
       let appState = result[APP_STATE_STORAGE_KEY] as AppState | undefined
       if (appState?.sections?.length) {
         const migrated = migrateSections(appState.sections)
-        const needsSave = migrated.some((_, i) =>
-          !isValidPosition(appState!.sections[i]?.position)
-        )
+        const needsSave = migrated.some((_, i) => {
+          const prev = appState!.sections[i]
+          if (!isValidPosition(prev?.position)) return true
+          const raw = prev?.canvasColumnSpan
+          return (
+            raw !== undefined &&
+            normalizeCanvasColumnSpan(raw) !== raw
+          )
+        })
         appState = { ...appState, sections: migrated }
         if (needsSave) chrome.storage.sync.set({ [APP_STATE_STORAGE_KEY]: appState })
       }

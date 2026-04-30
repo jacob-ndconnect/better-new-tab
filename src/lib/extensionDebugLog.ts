@@ -40,3 +40,22 @@ export function extensionDebugLog(...args: unknown[]): void {
   if (!isExtensionDebugEnabled()) return
   console.log(...args)
 }
+
+const SECTION_RESIZE_LS = "bntDebugSectionResize" as const
+
+/** Section width resize: set `localStorage.bntDebugSectionResize = "1"` on the new tab page, then reload. */
+export function isSectionResizeDebugEnabled(): boolean {
+  try {
+    return (
+      typeof localStorage !== "undefined" &&
+      localStorage.getItem(SECTION_RESIZE_LS) === "1"
+    )
+  } catch {
+    return false
+  }
+}
+
+export function sectionResizeDebugLog(payload: Record<string, unknown>): void {
+  if (!isSectionResizeDebugEnabled()) return
+  console.log("[SectionResize]", payload)
+}

@@ -19,25 +19,12 @@ import {
 import { formatForDisplay } from "@tanstack/react-hotkeys"
 import { Kbd } from "../ui/kbd"
 import GradualBlurMemo from "../GradualBlur"
-
-const GRID_OFFSET = 40
-const GRID_GAP = 20
-const SECTION_WIDTH = 280
-const SECTION_HEIGHT = 200
-
-function getDefaultPosition(index: number): { x: number; y: number } {
-  const col = index % 3
-  const row = Math.floor(index / 3)
-  return {
-    x: GRID_OFFSET + col * (SECTION_WIDTH + GRID_GAP),
-    y: GRID_OFFSET + row * (SECTION_HEIGHT + GRID_GAP),
-  }
-}
+import { getDefaultCanvasSectionPosition } from "@/lib/canvasGrid"
 
 function hasCustomLayout(sections: AppState["sections"]): boolean {
   const tolerance = 2
   return sections.some((section, index) => {
-    const def = getDefaultPosition(index)
+    const def = getDefaultCanvasSectionPosition(index)
     const pos = section.position
     return (
       Math.abs(pos.x - def.x) > tolerance || Math.abs(pos.y - def.y) > tolerance
@@ -48,7 +35,7 @@ function hasCustomLayout(sections: AppState["sections"]): boolean {
 function resetSectionPositions(sections: AppState["sections"]) {
   return sections.map((section, index) => ({
     ...section,
-    position: getDefaultPosition(index),
+    position: getDefaultCanvasSectionPosition(index),
   }))
 }
 

@@ -24,7 +24,11 @@ export type Section = {
   links: Link[]
   // Canvas mode position
   position: { x: number; y: number }
-  // Canvas mode size is auto — derived from number of links
+  /**
+   * How many link tiles fit per row on canvas (1…link count when unset).
+   * Not related to the 280px canvas placement grid.
+   */
+  canvasColumnSpan?: number
 }
 
 export type SectionLabelSize =
