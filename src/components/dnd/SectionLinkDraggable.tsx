@@ -1,10 +1,39 @@
-import type { ReactNode } from "react"
-import { useCallback, useEffect, useRef } from "react"
+import type { ReactElement, ReactNode } from "react"
+import { Children, Fragment, cloneElement, isValidElement, useCallback, useEffect, useRef } from "react"
 import { useDndMonitor, useDraggable } from "@dnd-kit/core"
 import { CSS } from "@dnd-kit/utilities"
+import { LinkCard } from "@/components/canvas/LinkCard"
 import { cn } from "@/lib/utils"
 import type { Link } from "@/types"
 import { sectionLinkDragId } from "./linkDragIds"
+
+function injectLinkCardIsDragging(
+  node: ReactNode,
+  isDragging: boolean
+): ReactNode {
+  return Children.map(node, (child) => {
+    if (!isValidElement(child)) return child
+    if (child.type === LinkCard) {
+      return cloneElement(child as ReactElement<{ isDragging?: boolean }>, {
+        isDragging,
+      })
+    }
+    if (child.type === Fragment) {
+      const p = child.props as { children?: ReactNode }
+      return cloneElement(child, {
+        children: injectLinkCardIsDragging(p.children, isDragging),
+      } as never)
+    }
+    const p = child.props as { children?: ReactNode }
+    if (p.children != null) {
+      return cloneElement(child, {
+        ...p,
+        children: injectLinkCardIsDragging(p.children, isDragging),
+      } as never)
+    }
+    return child
+  })
+}
 
 type SectionLinkDraggableProps = {
   sectionId: string
@@ -101,6 +130,10 @@ export function SectionLinkDraggable({
     ? { transform: CSS.Translate.toString(transform) }
     : undefined
 
+  const child = enabled
+    ? injectLinkCardIsDragging(children, isDragging)
+    : children
+
   return (
     <div
       ref={setContainerRef}
@@ -108,26 +141,14 @@ export function SectionLinkDraggable({
       {...(enabled ? listeners : {})}
       {...(enabled ? attributes : {})}
       className={cn(
-        "relative pt-2 pr-2",
-        enabled && "cursor-grab touch-none active:cursor-grabbing",
+        "relative pr-2",
+        enabled &&
+          (isDragging ? "cursor-grabbing" : "cursor-grab touch-none"),
         enabled && isDragging && layout === "canvas" && "z-50 opacity-90",
         enabled && isDragging && layout === "list" && "opacity-40"
       )}
     >
-      {enabled && (
-        <div
-          className="pointer-events-none absolute -top-0.5 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-0.5"
-          aria-hidden
-        >
-          {[1, 2].map((i) => (
-            <span
-              key={i}
-              className="h-[2px] w-5 rounded-full bg-muted-foreground/60"
-            />
-          ))}
-        </div>
-      )}
-      {children}
+      {child}
     </div>
   )
 }

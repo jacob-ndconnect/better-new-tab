@@ -115,17 +115,18 @@ export function FloatingLinkCard({
       onMouseLeave={() => setIsCardHovered(false)}
       className={cn(
         "group relative flex w-fit flex-col items-center rounded-2xl p-2",
-        isDraggable && "cursor-grab active:cursor-grabbing",
+        isDraggable &&
+          (isDragging ? "cursor-grabbing" : "cursor-grab"),
         isDraggable && !isDragging && "hover:bg-white/5 hover:backdrop-blur-sm",
         isDragging && "z-50 bg-white/10 shadow-lg backdrop-blur-sm"
       )}
     >
-      {isDraggable && (
+      {isDraggable && !editMode && (
         <div
           className={cn(
             "pointer-events-none absolute -top-0.5 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-0.5 transition-opacity",
-            !editMode && !isCardHovered && "opacity-0",
-            !editMode && isCardHovered && "opacity-100"
+            !isCardHovered && "opacity-0",
+            isCardHovered && "opacity-100"
           )}
           aria-hidden
         >
@@ -137,7 +138,12 @@ export function FloatingLinkCard({
           ))}
         </div>
       )}
-      <LinkCard link={link} editMode={editMode} onEdit={onEdit} />
+      <LinkCard
+        link={link}
+        editMode={editMode}
+        isDragging={isDraggable && isDragging}
+        onEdit={onEdit}
+      />
     </div>
   )
 }

@@ -88,6 +88,7 @@ export function SectionFrame({
       className={cn(
         "group relative z-1 flex min-w-[200px] flex-col gap-0 rounded-2xl p-4 shadow-sm",
         isDraggable && !isDragging && "hover:bg-white/5 hover:backdrop-blur-sm",
+        isDraggable && isDragging && "cursor-grabbing",
         isDragging && "z-50 bg-white/10 shadow-lg backdrop-blur-sm"
       )}
     >
@@ -95,7 +96,9 @@ export function SectionFrame({
         <div
           {...(isDraggable ? { ...attributes, ...listeners } : {})}
           className={cn(
-            "absolute top-2 left-1/2 z-10 -my-1 flex -translate-x-1/2 cursor-grab flex-col items-center gap-0.5 transition-opacity active:cursor-grabbing",
+            "absolute top-2 left-1/2 z-10 flex -translate-x-1/2 cursor-grab flex-col items-center gap-0.5 transition-opacity",
+            "after:absolute after:top-1/2 after:left-1/2 after:h-10 after:w-12 after:-translate-x-1/2 after:-translate-y-1/2 after:content-['']",
+            isDragging && "cursor-grabbing",
             !editMode && !isCardHovered && "opacity-0",
             !editMode && isCardHovered && "opacity-100"
           )}

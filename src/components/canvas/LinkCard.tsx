@@ -7,6 +7,8 @@ import type { Link } from "@/types"
 type LinkCardProps = {
   link: Link
   editMode: boolean
+  /** Canvas drag state — keeps `cursor-grabbing` for the whole drag (not only `:active`). */
+  isDragging?: boolean
   onEdit?: () => void
 }
 
@@ -15,7 +17,12 @@ function getPlaceholderColor(label: string): string {
   return `hsl(${hue}, 65%, 55%)`
 }
 
-export function LinkCard({ link, editMode, onEdit }: LinkCardProps) {
+export function LinkCard({
+  link,
+  editMode,
+  isDragging = false,
+  onEdit,
+}: LinkCardProps) {
   const [faviconError, setFaviconError] = useState(false)
   const [useFallback, setUseFallback] = useState(false)
   const [prevUrl, setPrevUrl] = useState(link.url)
@@ -55,9 +62,26 @@ export function LinkCard({ link, editMode, onEdit }: LinkCardProps) {
       onDragStart={editMode ? (e) => e.preventDefault() : undefined}
       className={cn(
         "group flex w-[80px] flex-col items-center gap-2 rounded-2xl p-0 text-inherit no-underline transition-opacity outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-        editMode ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"
+        editMode
+          ? isDragging
+            ? "cursor-grabbing"
+            : "cursor-grab"
+          : "cursor-pointer"
       )}
     >
+      {editMode && (
+        <div
+          className="relative flex min-h-[22px] w-full shrink-0 flex-col items-center justify-center gap-0.5 py-1 pointer-events-none"
+          aria-hidden
+        >
+          {[1, 2].map((i) => (
+            <span
+              key={i}
+              className="h-[2px] w-5 shrink-0 rounded-full bg-muted-foreground/50"
+            />
+          ))}
+        </div>
+      )}
       <div className="relative shrink-0">
         <div
           className={cn(
