@@ -1,0 +1,16 @@
+---
+description: Read the project reference and roadmap before making changes
+alwaysApply: true
+---
+
+# Project Context
+
+Before planning or editing code, read `PROJECT.md` and `ROADMAP.md`.
+
+- Use `PROJECT.md` for the current architecture, data model, tech stack, storage behavior, and implementation notes.
+- Use `ROADMAP.md` for completed work, planned features, and product direction.
+- Keep changes minimal, type-exact, and aligned with existing React/TypeScript patterns.
+- Preserve Chrome extension constraints: Manifest V3, `chrome.storage.sync`, background service worker, and new tab override behavior.
+- Prefer existing helpers, types, and component patterns over new abstractions.
+- Update `PROJECT.md` or `ROADMAP.md` when a change makes their guidance outdated.
+- Run relevant validation after substantive edits and report what was checked.
