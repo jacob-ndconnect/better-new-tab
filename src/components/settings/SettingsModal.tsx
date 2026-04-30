@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { Settings } from "@/types"
 import { SETTINGS_SECTIONS } from "./settingsConfig"
 import type { SettingConfig } from "./settingsConfig"
+import { BooleanSetting } from "./BooleanSetting"
 import { HotkeySetting } from "./HotkeySetting"
 import { InfoSetting } from "./InfoSetting"
 import { SelectSetting } from "./SelectSetting"
@@ -24,7 +25,7 @@ type SettingsModalProps = {
 function renderSetting(
   config: SettingConfig,
   settings: Settings,
-  onChange: (key: keyof Settings, value: string) => void
+  onChange: (key: keyof Settings, value: string | boolean) => void
 ) {
   if (config.type === "hotkey") {
     return (
@@ -60,6 +61,23 @@ function renderSetting(
       />
     )
   }
+  if (config.type === "boolean") {
+    const disabled =
+      !settings.canvasRememberScroll &&
+      (config.id === "canvasScrollSync" ||
+        config.id === "canvasRestoreScrollOnResize")
+    return (
+      <BooleanSetting
+        key={config.id}
+        id={config.id}
+        label={config.label}
+        description={config.description}
+        checked={settings[config.id] as boolean}
+        disabled={disabled}
+        onChange={(checked) => onChange(config.id, checked)}
+      />
+    )
+  }
   return null
 }
 
@@ -70,7 +88,16 @@ export function SettingsModal({
   onSave,
 }: SettingsModalProps) {
   const handleSettingChange = useCallback(
-    (key: keyof Settings, value: string) => {
+    (key: keyof Settings, value: string | boolean) => {
+      if (key === "canvasRememberScroll" && value === false) {
+        onSave({
+          ...settings,
+          canvasRememberScroll: false,
+          canvasScrollSync: false,
+          canvasRestoreScrollOnResize: false,
+        })
+        return
+      }
       onSave({ ...settings, [key]: value })
     },
     [settings, onSave]
@@ -125,7 +152,11 @@ export function SettingsModal({
                     <section.Content />
                   ) : (
                     section.settings?.map((config) =>
-                      renderSetting(config, settings, handleSettingChange)
+                      renderSetting(
+                        config,
+                        settings,
+                        handleSettingChange
+                      )
                     )
                   )}
                 </TabsContent>

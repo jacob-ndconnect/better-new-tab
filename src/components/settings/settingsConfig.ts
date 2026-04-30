@@ -1,5 +1,10 @@
 import type { ComponentType, ElementType } from "react"
-import { KeyboardIcon, HeartIcon, PaintBrushIcon } from "@phosphor-icons/react"
+import {
+  CloudArrowUpIcon,
+  HeartIcon,
+  KeyboardIcon,
+  PaintBrushIcon,
+} from "@phosphor-icons/react"
 import type { Settings } from "@/types"
 import { SupportSectionContent } from "./SupportSection"
 
@@ -21,7 +26,7 @@ export type SettingConfig =
       id: keyof Settings
       label: string
       description?: string
-      type: "hotkey" | "select"
+      type: "hotkey" | "select" | "boolean"
       options?: readonly { value: string; label: string }[]
     }
   | {
@@ -101,6 +106,34 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
         description: "Font size for section headers in canvas",
         type: "select",
         options: SECTION_LABEL_SIZE_OPTIONS,
+      },
+    ],
+  },
+  {
+    id: "sync",
+    label: "Sync",
+    icon: CloudArrowUpIcon,
+    settings: [
+      {
+        id: "canvasRememberScroll",
+        label: "Remember canvas scroll",
+        description:
+          "Save where the canvas is scrolled (viewport center). New tabs restore that view.",
+        type: "boolean",
+      },
+      {
+        id: "canvasScrollSync",
+        label: "Sync canvas scroll",
+        description:
+          "Also store scroll position in Chrome sync (across signed-in devices). Uses little space.",
+        type: "boolean",
+      },
+      {
+        id: "canvasRestoreScrollOnResize",
+        label: "Keep center on resize",
+        description:
+          "When the window is resized, adjust scroll so the same canvas point stays at the viewport center.",
+        type: "boolean",
       },
     ],
   },

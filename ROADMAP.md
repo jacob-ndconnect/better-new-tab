@@ -6,6 +6,7 @@ Inferred from the current codebase and architecture ([`PROJECT.md`](./PROJECT.md
 
 | Status | Item |
 |--------|------|
+| **done** | Canvas scroll persistence: viewport-center anchor in [`canvasScrollAnchor.ts`](./src/lib/canvasScrollAnchor.ts), [`useCanvasScrollAnchor`](./src/hooks/useCanvasScrollAnchor.ts), settings under **Sync** in [`settingsConfig.ts`](./src/components/settings/settingsConfig.ts); `storage.local` with optional `sync`. |
 | **done** | Core new tab override: sections and links, Canvas vs List layout, `chrome.storage.sync` via [`useStorage`](./src/hooks/useStorage.ts). |
 | **done** | Command palette ([`CommandPalette.tsx`](./src/components/search/CommandPalette.tsx)) with Mod+K (configurable in settings); search uses label, domain, and optional `searchTerms`. |
 | **done** | Omnibox keyword `pin` in [`manifest.json`](./public/manifest.json) with matching logic in [`background.ts`](./src/background.ts) reading the same storage key as the page. |

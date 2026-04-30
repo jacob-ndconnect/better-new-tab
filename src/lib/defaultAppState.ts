@@ -4,6 +4,9 @@ export const DEFAULT_SETTINGS: Settings = {
   searchShortcut: "Mod+K",
   settingsShortcut: "Mod+,",
   sectionLabelSize: "text-lg",
+  canvasRememberScroll: true,
+  canvasScrollSync: false,
+  canvasRestoreScrollOnResize: true,
 }
 
 export const DEFAULT_APP_STATE: AppState = {

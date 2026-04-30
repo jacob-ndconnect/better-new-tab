@@ -1,4 +1,5 @@
 import { useCallback, useRef, type RefObject } from "react"
+import { useCanvasScrollAnchor } from "@/hooks/useCanvasScrollAnchor"
 import {
   DndContext,
   PointerSensor,
@@ -101,6 +102,15 @@ export function Canvas({
   const transformRef = useRef<{ x: number; y: number } | null>(null)
   const startPositionRef = useRef<{ x: number; y: number } | null>(null)
   const placementRootRef = useRef<HTMLDivElement | null>(null)
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null)
+
+  useCanvasScrollAnchor({
+    scrollRef: scrollContainerRef,
+    contentRef: placementRootRef,
+    remember: settings.canvasRememberScroll,
+    useSync: settings.canvasScrollSync,
+    restoreOnResize: settings.canvasRestoreScrollOnResize,
+  })
 
   const handleTransformChange = useCallback(
     (_id: string, transform: { x: number; y: number } | null) => {
@@ -189,6 +199,7 @@ export function Canvas({
       onDragEnd={handleDragEnd}
     >
       <div
+        ref={scrollContainerRef}
         className={cn(
           "absolute inset-0 overflow-auto scrollbar-none",
           editMode && "canvas-grid"

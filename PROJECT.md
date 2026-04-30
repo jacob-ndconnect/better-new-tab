@@ -11,7 +11,7 @@ A Chrome extension that replaces the default new tab page with a customizable co
 - **@dnd-kit** for drag-and-drop
 - **@tanstack/react-hotkeys** for shortcuts (Mod+K style)
 - **Chrome Extension** (Manifest V3) — `chrome_url_overrides.newtab`
-- **chrome.storage.sync** for persistence
+- **chrome.storage.sync** for `AppState`; **chrome.storage.local** for canvas scroll anchor (optional mirror to sync)
 - **Service worker** (`background.ts` → `background.js`) for omnibox
 
 ---
@@ -25,7 +25,7 @@ A Chrome extension that replaces the default new tab page with a customizable co
 | `Link`            | `id`, `url`, `label`, optional `searchTerms` (palette search only), optional `badge`, optional `customIcon` (unused in UI yet) |
 | `Section`         | `id`, `name`, `accentColor`, `links[]`, `position` (`x`, `y` for Canvas)                       |
 | `SectionLabelSize`| Tailwind text classes (`text-xs` … `text-3xl`) for canvas section title typography              |
-| `Settings`        | `searchShortcut`, `settingsShortcut`, `sectionLabelSize`                                       |
+| `Settings`        | `searchShortcut`, `settingsShortcut`, `sectionLabelSize`, `canvasRememberScroll`, `canvasScrollSync`, `canvasRestoreScrollOnResize` |
 | `AppState`        | `sections[]`, `layoutMode` ("canvas" \| "list"), `editMode`, `settings`                        |
 | `BadgeStyle`      | `emoji`, `color` (hex)                                                                         |
 
@@ -66,10 +66,19 @@ Root component. Responsibilities:
 **Purpose:** Load and persist `AppState` via `chrome.storage.sync`.
 
 - **Returns:** `{ state, save, loaded }`
-- **Defaults:** `DEFAULT_SETTINGS` (`searchShortcut`, `settingsShortcut`, `sectionLabelSize`) merged into stored `appState.settings` on load; missing keys are backfilled and re-persisted
+- **Defaults:** `DEFAULT_SETTINGS` (shortcuts, section label size, canvas scroll + resize toggles) merged into stored `appState.settings` on load; missing keys are backfilled and re-persisted
 - **save:** Accepts `AppState` or `(prev: AppState) => AppState`; uses functional `setState` and `queueMicrotask` for storage write
 - **Migration:** `migrateSections` adds valid `position` for sections missing it (3-column grid)
 - **Guard:** `hasUserSavedRef` prevents initial load from overwriting user saves if load callback runs late
+
+### `src/hooks/useCanvasScrollAnchor.ts`
+
+**Purpose:** Persist and restore canvas scroll using viewport-center coordinates in content space.
+
+- **Reads/writes:** `canvasScrollAnchor` in `chrome.storage.local`; when `settings.canvasScrollSync` is true, also mirrors to `chrome.storage.sync`
+- **Restore:** On mount (if `canvasRememberScroll`), load anchor and apply after layout (double `requestAnimationFrame`); if none, scrolls to geometric center of scrollable content
+- **Save:** Debounced `scroll` (~200ms); flush on `visibilitychange` (hidden) / `pagehide`
+- **Resize:** When `canvasRestoreScrollOnResize`, a ref holds the **last content-space viewport center** (updated on scroll and after restore); after scrollport or content size changes, that point is re-centered (`ResizeObserver` + `window.resize`, coalesced with `requestAnimationFrame`). Recomputing the center from `scrollLeft`/`scrollTop` immediately after resize cancels the adjustment because `clientWidth`/`clientHeight` changed but scroll offsets have not.
 
 ### TanStack HotKeys
 
@@ -110,7 +119,8 @@ Free-form canvas with drag-and-drop sections.
 - **Drag behavior:** Uses `transform` from `useDraggable` (not `event.delta`) because dnd-kit’s delta is wrong in scrollable containers
 - **Flow:** `SectionFrame` reports transform via `onTransformChange` → stored in `transformRef` → on `handleDragEnd`, `newPosition = startPos + transform`
 - **normalizePosition:** Ensures valid `{x,y}` or falls back to grid position
-- **Layout:** Scrollable div (`overflow-auto`); in edit mode the canvas area uses the `canvas-grid` class for the dot grid (CSS in `index.css`)
+- **Layout:** Scrollable outer div (`overflow-auto`) with `ref` for scroll persistence; inner `placementRootRef` supplies min size; in edit mode the canvas area uses the `canvas-grid` class for the dot grid (CSS in `index.css`)
+- **Scroll persistence:** `useCanvasScrollAnchor` saves the viewport center in content coordinates and restores on new tab; **Sync** tab: `canvasRememberScroll`, `canvasScrollSync`, `canvasRestoreScrollOnResize`
 - **Settings:** Passes `settings.sectionLabelSize` into `SectionFrame`
 - **Drag gating:** `DRAGGABLE_ONLY_IN_EDIT` — kept `false` on purpose so sections remain draggable outside edit mode (drag handle appears on hover when not editing). Set to `true` to require edit mode for moves.
 
@@ -160,14 +170,14 @@ Single section: header (name, accent dot, edit button), horizontal scroll of `Li
 
 #### `SettingsModal.tsx`
 
-Dialog with vertical **Tabs**: Keyboard, Appearance, Support.
+Dialog with vertical **Tabs**: Keyboard, Appearance, Sync, Support.
 
 - Receives `settings` and `onSave` from `App`; each change calls `onSave({ ...settings, [key]: value })`
-- Renders rows from `settingsConfig.ts` (`SETTINGS_SECTIONS`) via `HotkeySetting`, `SelectSetting`, `InfoSetting`, or custom `Content` (Support tab)
+- Renders rows from `settingsConfig.ts` (`SETTINGS_SECTIONS`) via `HotkeySetting`, `SelectSetting`, `BooleanSetting`, `InfoSetting`, or custom `Content` (Support tab)
 
 #### `settingsConfig.ts`
 
-- Defines tab sections, shortcut fields, **Section label size** select (canvas `SectionFrame` titles), and static omnibox keyword copy
+- Defines tab sections: shortcuts + omnibox info (**Keyboard**), **Section label size** (**Appearance**), canvas scroll persistence (**Sync**), and **Support** content
 - **Support:** `SupportSection` + `SUPPORT_CONFIG` (links, avatar asset, etc.)
 
 ---
@@ -222,6 +232,7 @@ Theme context (dark/light/system), localStorage persistence, system preference l
 | File                        | Exports                         | Purpose                                      |
 | --------------------------- | ------------------------------- | -------------------------------------------- |
 | `src/lib/utils.ts`          | `cn(...)`                       | `clsx` + `tailwind-merge` for class names    |
+| `src/lib/canvasScrollAnchor.ts` | `readCanvasScrollAnchor`, `writeCanvasScrollAnchor`, `applyScrollToCenter`, etc. | Canvas scroll anchor in `storage.local` / optional `sync` |
 | `src/lib/favicon.ts`        | `getFaviconUrl`, `getFaviconFallbackUrl` | Favicon URLs for a link’s domain      |
 | `src/lib/url.ts`            | `getDomain(url)`                | Hostname without `www.`                      |
 | `src/lib/color-swatches.ts` | `COLOR_SWATCHES`                | Preset hex colors for pickers                |
@@ -250,7 +261,7 @@ Theme context (dark/light/system), localStorage persistence, system preference l
 1. **State updates:** Prefer `save((prev) => ({ ...prev, ... }))` to avoid stale closures.
 2. **Canvas drag:** Use `transform` from `useDraggable`, not `event.delta`, in scrollable containers.
 3. **Positions:** `normalizePosition` and `migrateSections` ensure valid `{x,y}`; invalid values get grid fallback.
-4. **Extension:** `chrome.storage.sync`; `base: "./"` in Vite for extension asset paths.
+4. **Extension:** `chrome.storage.sync` for `appState`; canvas scroll anchor uses `storage.local` (optional `sync`); `base: "./"` in Vite for extension asset paths.
 5. **Settings:** Defaults merged on load in `useStorage`; new `Settings` keys should be added to `DEFAULT_SETTINGS` and optionally to `settingsConfig` UI.
 
 ---
@@ -266,6 +277,7 @@ src/
 ├── types/index.ts
 ├── hooks/
 │   ├── useStorage.ts       # Chrome storage + state + settings merge
+│   ├── useCanvasScrollAnchor.ts
 │   └── useEscape.ts        # Escape key
 ├── components/
 │   ├── canvas/
@@ -280,6 +292,7 @@ src/
 │   ├── settings/
 │   │   ├── SettingsModal.tsx
 │   │   ├── settingsConfig.ts
+│   │   ├── BooleanSetting.tsx
 │   │   ├── HotkeySetting.tsx
 │   │   ├── SelectSetting.tsx
 │   │   ├── InfoSetting.tsx
@@ -294,6 +307,7 @@ src/
 │   └── ui/                 # shadcn
 └── lib/
     ├── utils.ts
+    ├── canvasScrollAnchor.ts
     ├── favicon.ts
     ├── url.ts
     ├── color.ts

@@ -40,6 +40,12 @@ export type Settings = {
   searchShortcut: string
   settingsShortcut: string
   sectionLabelSize: SectionLabelSize
+  /** Persist canvas viewport center across new tabs (local; optional sync via canvasScrollSync). */
+  canvasRememberScroll: boolean
+  /** Mirror canvas scroll anchor to chrome.storage.sync when true. */
+  canvasScrollSync: boolean
+  /** After layout size changes, re-apply scroll so the same viewport center stays on screen. */
+  canvasRestoreScrollOnResize: boolean
 }
 
 /** Synthetic section id for list view / search grouping (not stored on canvas). */
