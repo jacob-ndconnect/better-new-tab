@@ -126,8 +126,8 @@ Draggable section card (Canvas only).
 
 iOS-style link card: favicon or letter placeholder, optional badge, label.
 
-- **Edit mode:** Click opens editor; hover shows pencil overlay
-- **View mode:** Click navigates to `link.url`
+- **Edit mode:** Click opens editor; hover shows pencil overlay; top-right pencil button is always visible when `onEdit` is passed
+- **View mode:** Click navigates to `link.url`; same pencil appears on hover (`onEdit`)
 - **Favicon:** `getFaviconUrl` / `getFaviconFallbackUrl` from `src/lib/favicon.ts`; fallback to first letter with generated color
 
 ---

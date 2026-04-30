@@ -54,80 +54,102 @@ export function LinkCard({
   }
 
   return (
-    <a
-      href={link.url}
-      rel="noopener noreferrer"
-      draggable={editMode ? false : undefined}
-      onClick={handleClick}
-      onDragStart={editMode ? (e) => e.preventDefault() : undefined}
-      className={cn(
-        "group flex w-[80px] flex-col items-center gap-2 rounded-2xl p-0 text-inherit no-underline transition-opacity outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-        editMode
-          ? isDragging
-            ? "cursor-grabbing"
-            : "cursor-grab"
-          : "cursor-pointer"
-      )}
-    >
-      {editMode && (
-        <div
-          className="relative flex min-h-[22px] w-full shrink-0 flex-col items-center justify-center gap-0.5 py-1 pointer-events-none"
-          aria-hidden
-        >
-          {[1, 2].map((i) => (
-            <span
-              key={i}
-              className="h-[2px] w-5 shrink-0 rounded-full bg-muted-foreground/50"
-            />
-          ))}
-        </div>
-      )}
-      <div className="relative shrink-0">
-        <div
+    <div className="group relative flex w-[80px] flex-col items-center rounded-2xl p-0">
+      {onEdit && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            onEdit()
+          }}
+          onPointerDown={(e) => e.stopPropagation()}
           className={cn(
-            "flex size-16 items-center justify-center overflow-hidden rounded-2xl",
-            showPlaceholder && "text-white"
+            "absolute top-3 -right-3 z-20 cursor-pointer rounded-full bg-muted/40 p-1 text-muted-foreground transition-[opacity,background-color,color] duration-150 hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none",
+            !editMode && "-top-3 -right-3 opacity-0 group-hover:opacity-100"
           )}
-          style={
-            showPlaceholder ? { backgroundColor: placeholderColor } : undefined
-          }
+          aria-label="Edit link"
         >
-          {showPlaceholder ? (
-            <span className="text-2xl font-semibold">{firstLetter}</span>
-          ) : (
-            <img
-              src={currentSrc}
-              alt=""
-              draggable={editMode ? false : undefined}
-              className="size-full object-cover"
-              onError={handleFaviconError}
-            />
+          <PencilIcon className="size-5" weight="bold" />
+        </button>
+      )}
+      <a
+        href={link.url}
+        rel="noopener noreferrer"
+        draggable={editMode ? false : undefined}
+        onClick={handleClick}
+        onDragStart={editMode ? (e) => e.preventDefault() : undefined}
+        className={cn(
+          "flex w-full flex-col items-center gap-2 p-0 text-inherit no-underline transition-opacity outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+          editMode
+            ? isDragging
+              ? "cursor-grabbing"
+              : "cursor-grab"
+            : "cursor-pointer"
+        )}
+      >
+        {editMode && (
+          <div
+            className="pointer-events-none relative flex min-h-[22px] w-full shrink-0 flex-col items-center justify-center gap-0.5 py-1"
+            aria-hidden
+          >
+            {[1, 2].map((i) => (
+              <span
+                key={i}
+                className="h-[2px] w-5 shrink-0 rounded-full bg-muted-foreground/50"
+              />
+            ))}
+          </div>
+        )}
+        <div className="relative shrink-0">
+          <div
+            className={cn(
+              "flex size-16 items-center justify-center overflow-hidden rounded-2xl",
+              showPlaceholder && "text-white"
+            )}
+            style={
+              showPlaceholder
+                ? { backgroundColor: placeholderColor }
+                : undefined
+            }
+          >
+            {showPlaceholder ? (
+              <span className="text-2xl font-semibold">{firstLetter}</span>
+            ) : (
+              <img
+                src={currentSrc}
+                alt=""
+                draggable={editMode ? false : undefined}
+                className="size-full object-cover"
+                onError={handleFaviconError}
+              />
+            )}
+          </div>
+
+          {link.badge && (
+            <span
+              className="absolute -top-1 -right-1 flex size-[22px] items-center justify-center rounded-full text-xs ring-2 ring-background"
+              style={{ backgroundColor: link.badge.color }}
+              aria-hidden
+            >
+              {link.badge.emoji}
+            </span>
+          )}
+
+          {editMode && (
+            <span
+              className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/20 opacity-0 transition-opacity group-hover:opacity-100"
+              aria-hidden
+            >
+              <PencilIcon className="size-6 text-white" weight="bold" />
+            </span>
           )}
         </div>
 
-        {link.badge && (
-          <span
-            className="absolute -top-1 -right-1 flex size-[22px] items-center justify-center rounded-full text-xs ring-2 ring-background"
-            style={{ backgroundColor: link.badge.color }}
-            aria-hidden
-          >
-            {link.badge.emoji}
-          </span>
-        )}
-
-        {editMode && (
-          <span
-            className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/20 opacity-0 transition-opacity group-hover:opacity-100"
-            aria-hidden
-          >
-            <PencilIcon className="size-6 text-white" weight="bold" />
-          </span>
-        )}
-      </div>
-
-      <span className="max-w-[80px] truncate text-center text-xs text-muted-foreground">
-        {link.label}
-      </span>
-    </a>
+        <span className="max-w-[80px] truncate text-center text-xs text-muted-foreground">
+          {link.label}
+        </span>
+      </a>
+    </div>
   )
 }
