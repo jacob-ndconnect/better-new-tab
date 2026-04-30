@@ -10,12 +10,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ColorPickerField } from "./ColorPickerField"
 import type { Section } from "@/types"
+import { TrashIcon } from "@phosphor-icons/react/dist/ssr"
 
 type SectionEditorProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   section: Section | null
   onSave: (section: Section) => void
+  onDelete?: (sectionId: string) => void
 }
 
 const DEFAULT_COLOR = "#3b82f6"
@@ -25,6 +27,7 @@ export function SectionEditor({
   onOpenChange,
   section,
   onSave,
+  onDelete,
 }: SectionEditorProps) {
   const [name, setName] = useState("")
   const [accentColor, setAccentColor] = useState(DEFAULT_COLOR)
@@ -49,6 +52,15 @@ export function SectionEditor({
     })
     onOpenChange(false)
   }
+
+  const handleDelete = () => {
+    if (section && onDelete) {
+      onDelete(section.id)
+      onOpenChange(false)
+    }
+  }
+
+  const isEditing = !!section
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -78,10 +90,20 @@ export function SectionEditor({
             label="Accent color"
           />
         </div>
-        <DialogFooter>
+        <DialogFooter className="sm:flex-row sm:justify-end">
+          {isEditing && onDelete && (
+            <Button
+              variant="destructive"
+              size="lg"
+              className="mr-auto cursor-pointer rounded-full"
+              onClick={handleDelete}
+            >
+              Delete <TrashIcon />
+            </Button>
+          )}
           <Button
             size="lg"
-            className="rounded-full"
+            className="cursor-pointer rounded-full"
             variant="outline"
             onClick={() => onOpenChange(false)}
           >
@@ -89,7 +111,7 @@ export function SectionEditor({
           </Button>
           <Button
             size="lg"
-            className="rounded-full"
+            className="cursor-pointer rounded-full"
             onClick={handleSave}
             disabled={!name.trim()}
           >

@@ -121,6 +121,16 @@ export function App() {
     [save]
   )
 
+  const handleSectionDelete = useCallback(
+    (sectionId: string) => {
+      save((prev) => ({
+        ...prev,
+        sections: prev.sections.filter((s) => s.id !== sectionId),
+      }))
+    },
+    [save]
+  )
+
   const handleLinkSave = useCallback(
     (link: Link) => {
       if (!linkEditorScope) return
@@ -263,6 +273,7 @@ export function App() {
         onOpenChange={setSectionEditorOpen}
         section={sectionToEdit}
         onSave={handleSectionSave}
+        onDelete={sectionToEdit ? handleSectionDelete : undefined}
       />
       <LinkEditor
         key={linkEditorOpen ? (linkToEdit?.id ?? "new") : "closed"}

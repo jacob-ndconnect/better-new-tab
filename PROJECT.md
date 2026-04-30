@@ -189,6 +189,7 @@ Dialog for create/edit section.
 
 - **Fields:** Name, accent color (`ColorPickerField`)
 - **Creates:** New section with `crypto.randomUUID()`, default position `{x:40, y:40}`
+- **Delete:** When editing an existing section, destructive footer action removes it from `sections` (same pattern as `LinkEditor`)
 
 #### `src/components/editor/LinkEditor.tsx`
 
