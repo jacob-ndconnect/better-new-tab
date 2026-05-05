@@ -156,13 +156,15 @@ export function SectionFrame({
         width: frameWidthPx,
         maxWidth: frameWidthPx,
         minWidth: 0,
-        borderColor: section.accentColor,
+        outlineColor: section.accentColor,
+        outlineOffset: "-1px",
         ...style,
       }}
       onMouseEnter={() => setIsCardHovered(true)}
       onMouseLeave={() => setIsCardHovered(false)}
       className={cn(
-        "group relative z-1 flex min-w-0 shrink-0 flex-col gap-0 p-4 shadow-sm",
+        "group relative z-1 flex min-w-0 shrink-0 flex-col gap-0 p-0 shadow-sm",
+        isDraggable && "outline outline-outline",
         isDraggable && !isDragging && "hover:bg-white/5 hover:backdrop-blur-sm",
         isDraggable && isDragging && "cursor-grabbing",
         isDragging && "z-50 bg-white/10 shadow-lg backdrop-blur-sm"
@@ -172,8 +174,8 @@ export function SectionFrame({
         <div
           {...(isDraggable ? { ...attributes, ...listeners } : {})}
           className={cn(
-            "absolute top-2 left-1/2 z-10 flex -translate-x-1/2 cursor-grab flex-col items-center gap-0.5 transition-opacity",
-            "after:absolute after:top-1/2 after:left-1/2 after:h-10 after:w-12 after:-translate-x-1/2 after:-translate-y-1/2 after:content-['']",
+            "absolute -top-[3px] left-1/2 z-10 flex -translate-x-1/2 cursor-grab flex-col items-center gap-0.5 transition-opacity z-5",
+            "before:absolute before:top-1/2 before:left-1/2 before:h-4 before:w-7 before:-translate-x-1/2 before:-translate-y-1/2 before:content-[''] before:bg-background/80 backdrop-blur-sm before:z-1",
             isDragging && "cursor-grabbing",
             !editMode && !isCardHovered && "opacity-0",
             !editMode && isCardHovered && "opacity-100"
@@ -183,7 +185,8 @@ export function SectionFrame({
           {[1, 2].map((i) => (
             <span
               key={i}
-              className="h-[2px] w-5 rounded-full bg-muted-foreground/50"
+              className="h-[2px] w-5 rounded-full z-4"
+              style={{backgroundColor: section.accentColor,}}
             />
           ))}
         </div>
@@ -191,7 +194,7 @@ export function SectionFrame({
       <div className="group flex min-w-0 items-center justify-between gap-2 pb-0">
         <h3
           className={cn(
-            "max-w-full min-w-0 truncate px-2 font-semibold",
+            "max-w-full min-w-0 truncate px-2 py-1 font-semibold",
             sectionLabelSize
           )}
           style={{
@@ -201,7 +204,7 @@ export function SectionFrame({
         >
           {section.name}
         </h3>
-        <div className="flex shrink-0 items-center gap-0.5">
+        <div className="flex shrink-0 items-center gap-0.5 pr-1">
           {onAddLink && (
             <button
               type="button"
@@ -210,13 +213,15 @@ export function SectionFrame({
                 onAddLink()
               }}
               className={cn(
-                "cursor-pointer rounded-full p-0 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+                "cursor-pointer rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted !hover:text-white",
                 !editMode &&
                   "opacity-0 transition-opacity group-hover:opacity-100"
               )}
               aria-label="Add link"
             >
-              <PlusIcon className="size-5" />
+              <PlusIcon className="size-5" style={{
+                color: section.accentColor
+              }} />
             </button>
           )}
           <button
@@ -226,13 +231,15 @@ export function SectionFrame({
               onEditSection()
             }}
             className={cn(
-              "cursor-pointer rounded-full p-0 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+              "cursor-pointer rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
               !editMode &&
                 "opacity-0 transition-opacity group-hover:opacity-100"
             )}
             aria-label="Edit section"
           >
-            <PencilIcon className="size-5" />
+            <PencilIcon className="size-5" style={{
+                color: section.accentColor
+              }}  />
           </button>
         </div>
       </div>
@@ -264,20 +271,6 @@ export function SectionFrame({
             />
           </SectionLinkDraggable>
         ))}
-        {/* {editMode && onAddLink && (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation()
-              onAddLink()
-            }}
-            className="flex size-[88px] flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-muted-foreground/30 text-muted-foreground transition-colors hover:border-muted-foreground/50 hover:text-foreground"
-          >
-            <PlusIcon className="size-6" />
-            <span className="text-xs">Add Link</span>
-          </button>
-        )} */}
-
         {editMode && onCanvasColumnSpanChange && (
           <button
             type="button"

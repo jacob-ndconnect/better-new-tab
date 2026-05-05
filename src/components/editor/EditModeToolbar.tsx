@@ -85,65 +85,7 @@ export function EditModeToolbar({
       >
         <div className="flex justify-start">
           <div className="flex items-center rounded-full border border-border bg-background/95 shadow-sm backdrop-blur">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={toggleEditMode}
-              className={cn(
-                "cursor-pointer gap-1.5 rounded-full",
-                editMode && "bg-muted"
-              )}
-              aria-pressed={editMode}
-            >
-              {editMode ? (
-                <FloppyDiskIcon className="size-4" />
-              ) : (
-                <PencilIcon className="size-4" />
-              )}
-              <span className="hidden sm:inline">
-                {editMode ? "Save" : "Edit"}
-              </span>
-            </Button>
-          </div>
-        </div>
-
-        <InputGroup
-          className={cn(
-            "f-full w-full max-w-sm cursor-pointer rounded-full",
-            searchOpen && "opacity-2"
-          )}
-          onClick={onSearchClick}
-        >
-          <InputGroupInput placeholder="Search" />
-          <InputGroupAddon>
-            <MagnifyingGlassIcon className="size-4" />
-          </InputGroupAddon>
-          <InputGroupAddon align="inline-end">
-            {formatForDisplay(state.settings.searchShortcut)
-              .split("+")
-              .map((part) => (
-                <Kbd
-                  key={part}
-                  className="rounded-lg bg-muted text-muted-foreground"
-                >
-                  {part}
-                </Kbd>
-              ))}
-          </InputGroupAddon>
-        </InputGroup>
-
-        <div className="flex justify-end">
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onSettingsClick}
-              className="cursor-pointer rounded-full"
-              aria-label="Open settings"
-            >
-              <GearIcon className="size-4" weight="regular" />
-            </Button>
-            <div className="flex items-center rounded-full border border-border bg-background/95 shadow-sm backdrop-blur">
+          <div className="flex items-center rounded-full border border-border bg-background/95 shadow-sm backdrop-blur">
               <div className="flex">
                 <Button
                   variant="ghost"
@@ -184,6 +126,67 @@ export function EditModeToolbar({
                 </Button>
               </div>
             </div>
+           
+          </div>
+        </div>
+
+        <InputGroup
+          className={cn(
+            "f-full w-full max-w-sm cursor-pointer rounded-full",
+            searchOpen && "opacity-2"
+          )}
+          onClick={onSearchClick}
+        >
+          <InputGroupInput placeholder="Search" />
+          <InputGroupAddon>
+            <MagnifyingGlassIcon className="size-4" />
+          </InputGroupAddon>
+          <InputGroupAddon align="inline-end">
+            {formatForDisplay(state.settings.searchShortcut)
+              .split("+")
+              .map((part) => (
+                <Kbd
+                  key={part}
+                  className="rounded-lg bg-muted text-muted-foreground"
+                >
+                  {part}
+                </Kbd>
+              ))}
+          </InputGroupAddon>
+        </InputGroup>
+
+        <div className="flex justify-end">
+          <div className="flex items-center gap-1">
+          <Button
+              variant={editMode ? "outline" : "ghost"}
+              size="sm"
+              onClick={toggleEditMode}
+              className={cn(
+                "cursor-pointer rounded-full",
+                editMode && "bg-muted gap-1.5"
+              )}
+              aria-label={editMode ? "Save changes" : "Edit mode"}
+              aria-pressed={editMode}
+            >
+              {editMode ? (
+                <FloppyDiskIcon className="size-4" />
+              ) : (
+                <PencilIcon className="size-4" />
+              )}
+             {editMode &&  <span className="hidden sm:inline">
+               Save
+              </span>}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onSettingsClick}
+              className="cursor-pointer rounded-full"
+              aria-label="Open settings"
+            >
+              <GearIcon className="size-4" weight="regular" />
+            </Button>
+           
           </div>
         </div>
       </div>
@@ -204,7 +207,7 @@ export function EditModeToolbar({
             className="fixed right-4 bottom-4 left-4 z-[110] flex justify-center"
             aria-label="Edit actions toolbar"
           >
-            <div className="flex items-center rounded-full border border-border bg-background/95 shadow-sm backdrop-blur">
+            <div className="flex items-center border border-border bg-background/95 shadow-sm backdrop-blur p-1">
               <Button
                 variant="secondary"
                 size="lg"
