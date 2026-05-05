@@ -105,7 +105,7 @@ export function LinkCard({
         <div className="relative shrink-0">
           <div
             className={cn(
-              "flex size-16 items-center justify-center overflow-hidden rounded-2xl",
+              "flex size-16 items-center justify-center overflow-hidden rounded-full",
               showPlaceholder && "text-white"
             )}
             style={

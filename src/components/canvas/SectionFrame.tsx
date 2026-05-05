@@ -56,7 +56,9 @@ export function SectionFrame({
 }: SectionFrameProps) {
   const position = section.position ?? DEFAULT_POSITION
 
-  const [resizePreviewSpan, setResizePreviewSpan] = useState<number | null>(null)
+  const [resizePreviewSpan, setResizePreviewSpan] = useState<number | null>(
+    null
+  )
   const resizeDragRef = useRef<{
     pointerId: number
     startClientX: number
@@ -68,8 +70,7 @@ export function SectionFrame({
   const lastResizeLoggedSpanRef = useRef<number | null>(null)
   const frameOuterElRef = useRef<HTMLDivElement | null>(null)
 
-  const columnSpan =
-    resizePreviewSpan ?? effectiveCanvasColumnSpan(section)
+  const columnSpan = resizePreviewSpan ?? effectiveCanvasColumnSpan(section)
   const frameWidthPx = sectionFrameOuterWidthPx(columnSpan)
 
   const { attributes, listeners, setNodeRef, transform, isDragging } =
@@ -161,7 +162,7 @@ export function SectionFrame({
       onMouseEnter={() => setIsCardHovered(true)}
       onMouseLeave={() => setIsCardHovered(false)}
       className={cn(
-        "group relative z-1 flex min-w-0 shrink-0 flex-col gap-0 rounded-2xl p-4 shadow-sm",
+        "group relative z-1 flex min-w-0 shrink-0 flex-col gap-0 p-4 shadow-sm",
         isDraggable && !isDragging && "hover:bg-white/5 hover:backdrop-blur-sm",
         isDraggable && isDragging && "cursor-grabbing",
         isDragging && "z-50 bg-white/10 shadow-lg backdrop-blur-sm"
@@ -187,10 +188,10 @@ export function SectionFrame({
           ))}
         </div>
       )}
-      <div className="group flex min-w-0 items-center justify-between gap-2 pb-2">
+      <div className="group flex min-w-0 items-center justify-between gap-2 pb-0">
         <h3
           className={cn(
-            "min-w-0 max-w-full truncate rounded-full px-2 font-semibold",
+            "max-w-full min-w-0 truncate px-2 font-semibold",
             sectionLabelSize
           )}
           style={{
@@ -209,7 +210,7 @@ export function SectionFrame({
                 onAddLink()
               }}
               className={cn(
-                "cursor-pointer rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+                "cursor-pointer rounded-full p-0 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
                 !editMode &&
                   "opacity-0 transition-opacity group-hover:opacity-100"
               )}
@@ -225,7 +226,7 @@ export function SectionFrame({
               onEditSection()
             }}
             className={cn(
-              "cursor-pointer rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+              "cursor-pointer rounded-full p-0 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
               !editMode &&
                 "opacity-0 transition-opacity group-hover:opacity-100"
             )}
@@ -238,7 +239,7 @@ export function SectionFrame({
 
       <div
         ref={setLinksPanelRef}
-        className="relative grid min-h-0 min-w-0 auto-rows-max gap-4 overflow-visible rounded-md border border-border bg-background/60 p-4 backdrop-blur-sm"
+        className="relative grid min-h-0 min-w-0 auto-rows-max gap-4 overflow-visible border border-border bg-background/60 p-4 backdrop-blur-sm"
         style={{
           borderColor: section.accentColor,
           gridTemplateColumns: `repeat(${columnSpan}, max-content)`,
@@ -281,7 +282,7 @@ export function SectionFrame({
           <button
             type="button"
             aria-label="Resize section width"
-            className="absolute right-0 bottom-0 z-40 size-7 translate-x-1/2 translate-y-1/2 cursor-se-resize rounded-full border-2 border-background shadow-md ring-2 ring-background/90 touch-none"
+            className="absolute right-0 bottom-0 z-40 size-7 translate-x-1/2 translate-y-1/2 cursor-se-resize touch-none rounded-full border-2 border-background shadow-md ring-2 ring-background/90"
             style={{ backgroundColor: section.accentColor }}
             onPointerDown={(e) => {
               e.preventDefault()
@@ -291,7 +292,10 @@ export function SectionFrame({
               const links = linksPanelElRef.current
               const pOut =
                 outer != null
-                  ? readHorizontalPaddingPx(outer, SECTION_FRAME_OUTER_PADDING_X)
+                  ? readHorizontalPaddingPx(
+                      outer,
+                      SECTION_FRAME_OUTER_PADDING_X
+                    )
                   : SECTION_FRAME_OUTER_PADDING_X
               const pLinks =
                 links != null
