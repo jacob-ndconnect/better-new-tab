@@ -85,11 +85,11 @@ export function EditModeToolbar({
       >
         <div className="flex justify-start">
           <div className="flex items-center rounded-full border border-border bg-background/95 shadow-sm backdrop-blur">
-          <div className="flex items-center rounded-full border border-border bg-background/95 shadow-sm backdrop-blur">
+            <div className="flex items-center rounded-full border border-border bg-background/95 shadow-sm backdrop-blur">
               <div className="flex">
                 <Button
                   variant="ghost"
-                  size="sm"
+                  size="icon-sm"
                   onClick={() => setLayoutMode("canvas")}
                   className={cn(
                     "cursor-pointer rounded-full border-0",
@@ -101,7 +101,7 @@ export function EditModeToolbar({
                 </Button>
                 <Button
                   variant="ghost"
-                  size="sm"
+                  size="icon-sm"
                   onClick={() => setLayoutMode("list")}
                   className={cn(
                     "cursor-pointer rounded-full border-0",
@@ -113,7 +113,7 @@ export function EditModeToolbar({
                 </Button>
                 <Button
                   variant="ghost"
-                  size="sm"
+                  size="icon-sm"
                   onClick={() => setLayoutMode("folders")}
                   className={cn(
                     "cursor-pointer rounded-full border-0",
@@ -126,7 +126,6 @@ export function EditModeToolbar({
                 </Button>
               </div>
             </div>
-           
           </div>
         </div>
 
@@ -157,13 +156,13 @@ export function EditModeToolbar({
 
         <div className="flex justify-end">
           <div className="flex items-center gap-1">
-          <Button
+            <Button
               variant={editMode ? "outline" : "ghost"}
-              size="sm"
+              size={editMode ? "sm" : "icon-sm"}
               onClick={toggleEditMode}
               className={cn(
                 "cursor-pointer rounded-full",
-                editMode && "bg-muted gap-1.5"
+                editMode && "gap-1.5 bg-muted"
               )}
               aria-label={editMode ? "Save changes" : "Edit mode"}
               aria-pressed={editMode}
@@ -173,20 +172,17 @@ export function EditModeToolbar({
               ) : (
                 <PencilIcon className="size-4" />
               )}
-             {editMode &&  <span className="hidden sm:inline">
-               Save
-              </span>}
+              {editMode && <span className="hidden sm:inline">Save</span>}
             </Button>
             <Button
               variant="ghost"
-              size="sm"
+              size="icon-sm"
               onClick={onSettingsClick}
               className="cursor-pointer rounded-full"
               aria-label="Open settings"
             >
               <GearIcon className="size-4" weight="regular" />
             </Button>
-           
           </div>
         </div>
       </div>
@@ -207,7 +203,7 @@ export function EditModeToolbar({
             className="fixed right-4 bottom-4 left-4 z-[110] flex justify-center"
             aria-label="Edit actions toolbar"
           >
-            <div className="flex items-center border border-border bg-background/95 shadow-sm backdrop-blur p-1">
+            <div className="flex items-center border border-border bg-background/95 p-1 shadow-sm backdrop-blur">
               <Button
                 variant="secondary"
                 size="lg"

@@ -35,7 +35,9 @@ export function FloatingLinkCard({
       cleanupTimerRef.current = null
     }
     if (blockClickRef.current) {
-      document.removeEventListener("click", blockClickRef.current, { capture: true })
+      document.removeEventListener("click", blockClickRef.current, {
+        capture: true,
+      })
       blockClickRef.current = null
     }
   }, [])
@@ -114,9 +116,9 @@ export function FloatingLinkCard({
       onMouseEnter={() => setIsCardHovered(true)}
       onMouseLeave={() => setIsCardHovered(false)}
       className={cn(
-        "group relative flex w-fit flex-col items-center rounded-2xl p-2",
-        isDraggable &&
-          (isDragging ? "cursor-grabbing" : "cursor-grab"),
+        "group relative flex w-fit flex-col items-center rounded-none p-0",
+        isDraggable && "backdrop-blur-sm",
+        isDraggable && (isDragging ? "cursor-grabbing" : "cursor-grab"),
         isDraggable && !isDragging && "hover:bg-white/5 hover:backdrop-blur-sm",
         isDragging && "z-50 bg-white/10 shadow-lg backdrop-blur-sm"
       )}

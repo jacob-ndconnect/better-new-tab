@@ -1,5 +1,13 @@
 import type { ReactElement, ReactNode } from "react"
-import { Children, Fragment, cloneElement, isValidElement, useCallback, useEffect, useRef } from "react"
+import {
+  Children,
+  Fragment,
+  cloneElement,
+  isValidElement,
+  useCallback,
+  useEffect,
+  useRef,
+} from "react"
 import { useDndMonitor, useDraggable } from "@dnd-kit/core"
 import { CSS } from "@dnd-kit/utilities"
 import { LinkCard } from "@/components/canvas/LinkCard"
@@ -141,9 +149,8 @@ export function SectionLinkDraggable({
       {...(enabled ? listeners : {})}
       {...(enabled ? attributes : {})}
       className={cn(
-        "relative pr-2",
-        enabled &&
-          (isDragging ? "cursor-grabbing" : "cursor-grab touch-none"),
+        "relative",
+        enabled && (isDragging ? "cursor-grabbing" : "cursor-grab touch-none"),
         enabled && isDragging && layout === "canvas" && "z-50 opacity-90",
         enabled && isDragging && layout === "list" && "opacity-40"
       )}

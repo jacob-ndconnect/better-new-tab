@@ -1,4 +1,4 @@
-import { GearSixIcon, PlusIcon } from "@phosphor-icons/react"
+import { PencilSimpleIcon, PlusIcon } from "@phosphor-icons/react"
 import { useDroppable } from "@dnd-kit/core"
 import { LinkCard } from "@/components/canvas/LinkCard"
 import { LinkDropTargetOverlay } from "@/components/dnd/LinkDropTargetOverlay"
@@ -56,22 +56,20 @@ export function SectionRow({
           <button
             type="button"
             onClick={onEditSection}
-            className="ml-1 rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="ml-1 cursor-pointer rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             aria-label="Edit section"
           >
-            <GearSixIcon className="size-4" />
+            <PencilSimpleIcon className="size-4" />
           </button>
         )}
       </div>
       <div
         ref={setLinksDropRef}
-        className="relative flex gap-4 overflow-x-auto rounded-lg pb-2 pt-4 pr-4"
+        className="relative flex gap-4 overflow-x-auto rounded-lg pt-4 pr-4 pb-2"
       >
         <LinkDropTargetOverlay
           visible={linkDropTargetActive}
-          message={
-            isUngrouped ? "Move to Ungrouped" : "Move to this section"
-          }
+          message={isUngrouped ? "Move to Ungrouped" : "Move to this section"}
         />
         {section.links.map((link) =>
           isUngrouped ? (
@@ -85,6 +83,7 @@ export function SectionRow({
                 link={link}
                 editMode={editMode}
                 onEdit={onEditLink ? () => onEditLink(link.id) : undefined}
+                accentColor={section.accentColor}
               />
             </StandaloneListLinkDraggable>
           ) : (
@@ -100,6 +99,7 @@ export function SectionRow({
                 link={link}
                 editMode={editMode}
                 onEdit={onEditLink ? () => onEditLink(link.id) : undefined}
+                accentColor={section.accentColor}
               />
             </SectionLinkDraggable>
           )
@@ -108,7 +108,7 @@ export function SectionRow({
           <button
             type="button"
             onClick={onAddLink}
-            className="flex size-[88px] shrink-0 flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-muted-foreground/30 text-muted-foreground transition-colors hover:border-muted-foreground/50 hover:text-foreground"
+            className="my-auto flex size-[100px] shrink-0 cursor-pointer flex-col items-center justify-center gap-2 rounded-none border-2 border-dashed border-muted-foreground/30 text-muted-foreground transition-colors hover:border-muted-foreground/50 hover:text-foreground"
           >
             <PlusIcon className="size-6" />
             <span className="text-xs">Add Link</span>

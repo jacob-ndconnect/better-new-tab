@@ -1,8 +1,9 @@
 import { useState } from "react"
-import { PencilIcon } from "@phosphor-icons/react"
+import { PencilSimpleIcon } from "@phosphor-icons/react"
 import { getFaviconFallbackUrl, getFaviconUrl } from "@/lib/favicon"
 import { cn } from "@/lib/utils"
-import type { Link } from "@/types"
+import type { Link, Section } from "@/types"
+import { getContrastColor } from "@/lib/color"
 
 type LinkCardProps = {
   link: Link
@@ -10,6 +11,7 @@ type LinkCardProps = {
   /** Canvas drag state — keeps `cursor-grabbing` for the whole drag (not only `:active`). */
   isDragging?: boolean
   onEdit?: () => void
+  accentColor?: Section["accentColor"]
 }
 
 function getPlaceholderColor(label: string): string {
@@ -22,6 +24,7 @@ export function LinkCard({
   editMode,
   isDragging = false,
   onEdit,
+  accentColor,
 }: LinkCardProps) {
   const [faviconError, setFaviconError] = useState(false)
   const [useFallback, setUseFallback] = useState(false)
@@ -53,8 +56,21 @@ export function LinkCard({
     }
   }
 
+  const accentColorToUse = accentColor || "#ffffff55"
+
+  const sectionAccentActionStyle = {
+    "--section-accent": accentColorToUse,
+    "--section-accent-contrast": getContrastColor(accentColorToUse),
+  } as React.CSSProperties
+
   return (
-    <div className="group/link-card relative flex w-[80px] flex-col items-center rounded-2xl p-0">
+    <div
+      className={cn(
+        "group/link-card relative flex w-[100px] flex-col items-center rounded-none p-2 pt-3",
+        editMode && "border border-border pt-2"
+      )}
+      style={{ borderColor: accentColorToUse }}
+    >
       {onEdit && (
         <button
           type="button"
@@ -64,14 +80,19 @@ export function LinkCard({
             onEdit()
           }}
           onPointerDown={(e) => e.stopPropagation()}
+          style={sectionAccentActionStyle}
           className={cn(
-            "absolute top-3 -right-3 z-20 cursor-pointer rounded-full bg-muted/80 p-1 text-muted-foreground transition-[opacity,background-color,color] duration-150 hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none",
+            "group/icon-action absolute top-0 right-0 z-20 cursor-pointer rounded-none bg-transparent p-1 text-muted-foreground transition-[opacity,background-color,color] duration-150 hover:bg-(--section-accent) hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none",
+            "opacity-50 group-hover/link-card:opacity-100",
             !editMode &&
-              "-top-0 -right-0 opacity-0 group-hover/link-card:opacity-100"
+              "top-0 right-0 opacity-0 group-hover/link-card:opacity-100"
           )}
           aria-label="Edit link"
         >
-          <PencilIcon className="size-5" weight="bold" />
+          <PencilSimpleIcon
+            className="size-5 text-(--section-accent) transition-colors group-hover/icon-action:text-(--section-accent-contrast)"
+            weight="bold"
+          />
         </button>
       )}
       <a
@@ -91,13 +112,14 @@ export function LinkCard({
       >
         {editMode && (
           <div
-            className="pointer-events-none relative flex min-h-[22px] w-full shrink-0 flex-col items-center justify-center gap-0.5 py-1"
+            className="pointer-events-none relative -mt-3 flex min-h-[22px] w-full shrink-0 flex-col items-center justify-center gap-0.5 py-1"
             aria-hidden
           >
             {[1, 2].map((i) => (
               <span
                 key={i}
-                className="h-[2px] w-5 shrink-0 rounded-full bg-muted-foreground/50"
+                className="h-[2px] w-5 shrink-0 rounded-full opacity-0 transition-opacity duration-150 group-hover/link-card:opacity-100"
+                style={{ backgroundColor: accentColorToUse }}
               />
             ))}
           </div>
@@ -134,15 +156,6 @@ export function LinkCard({
               aria-hidden
             >
               {link.badge.emoji}
-            </span>
-          )}
-
-          {editMode && (
-            <span
-              className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/20 opacity-0 transition-opacity group-hover/link-card:opacity-100"
-              aria-hidden
-            >
-              <PencilIcon className="size-6 text-white" weight="bold" />
             </span>
           )}
         </div>

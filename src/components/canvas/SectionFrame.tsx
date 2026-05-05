@@ -22,7 +22,7 @@ import {
 import { sectionResizeDebugLog } from "@/lib/extensionDebugLog"
 import { cn } from "@/lib/utils"
 import type { Section, SectionLabelSize } from "@/types"
-import { PencilIcon } from "@phosphor-icons/react/dist/ssr"
+import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr"
 
 type SectionFrameProps = {
   section: Section
@@ -109,6 +109,11 @@ export function SectionFrame({
   const linkDropTargetActive =
     isDropOverLinks && isActiveLinkDrag(dropContextActive)
 
+  const sectionAccentActionStyle = {
+    "--section-accent": section.accentColor,
+    "--section-accent-contrast": getContrastColor(section.accentColor),
+  } as React.CSSProperties
+
   const style = transform
     ? {
         transform: CSS.Translate.toString(transform),
@@ -164,7 +169,7 @@ export function SectionFrame({
       onMouseLeave={() => setIsCardHovered(false)}
       className={cn(
         "group relative z-1 flex min-w-0 shrink-0 flex-col gap-0 p-0 shadow-sm",
-        isDraggable && "outline outline-outline",
+        editMode && "outline-outline outline",
         isDraggable && !isDragging && "hover:bg-white/5 hover:backdrop-blur-sm",
         isDraggable && isDragging && "cursor-grabbing",
         isDragging && "z-50 bg-white/10 shadow-lg backdrop-blur-sm"
@@ -174,8 +179,8 @@ export function SectionFrame({
         <div
           {...(isDraggable ? { ...attributes, ...listeners } : {})}
           className={cn(
-            "absolute -top-[3px] left-1/2 z-10 flex -translate-x-1/2 cursor-grab flex-col items-center gap-0.5 transition-opacity z-5",
-            "before:absolute before:top-1/2 before:left-1/2 before:h-4 before:w-7 before:-translate-x-1/2 before:-translate-y-1/2 before:content-[''] before:bg-background/80 backdrop-blur-sm before:z-1",
+            "absolute -top-[3px] left-1/2 z-5 z-10 flex -translate-x-1/2 cursor-grab flex-col items-center gap-0.5 transition-opacity",
+            "backdrop-blur-sm before:absolute before:top-1/2 before:left-1/2 before:z-1 before:h-4 before:w-7 before:-translate-x-1/2 before:-translate-y-1/2 before:bg-background/80 before:content-['']",
             isDragging && "cursor-grabbing",
             !editMode && !isCardHovered && "opacity-0",
             !editMode && isCardHovered && "opacity-100"
@@ -185,8 +190,8 @@ export function SectionFrame({
           {[1, 2].map((i) => (
             <span
               key={i}
-              className="h-[2px] w-5 rounded-full z-4"
-              style={{backgroundColor: section.accentColor,}}
+              className="z-4 h-[2px] w-5 rounded-full"
+              style={{ backgroundColor: section.accentColor }}
             />
           ))}
         </div>
@@ -204,49 +209,53 @@ export function SectionFrame({
         >
           {section.name}
         </h3>
-        <div className="flex shrink-0 items-center gap-0.5 pr-1">
+        <div className="flex shrink-0 items-center gap-0.5">
           {onAddLink && (
             <button
               type="button"
+              style={sectionAccentActionStyle}
               onClick={(e) => {
                 e.stopPropagation()
                 onAddLink()
               }}
               className={cn(
-                "cursor-pointer rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted !hover:text-white",
+                "group/icon-action cursor-pointer rounded-none p-1.5 transition-colors hover:bg-[var(--section-accent)]",
                 !editMode &&
                   "opacity-0 transition-opacity group-hover:opacity-100"
               )}
               aria-label="Add link"
             >
-              <PlusIcon className="size-5" style={{
-                color: section.accentColor
-              }} />
+              <PlusIcon
+                className="size-5 text-[var(--section-accent)] transition-colors group-hover/icon-action:text-[var(--section-accent-contrast)]"
+                aria-hidden
+              />
             </button>
           )}
           <button
             type="button"
+            style={sectionAccentActionStyle}
             onClick={(e) => {
               e.stopPropagation()
               onEditSection()
             }}
             className={cn(
-              "cursor-pointer rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+              "group/icon-action cursor-pointer rounded-none p-1.5 transition-colors hover:bg-[var(--section-accent)]",
               !editMode &&
                 "opacity-0 transition-opacity group-hover:opacity-100"
             )}
             aria-label="Edit section"
           >
-            <PencilIcon className="size-5" style={{
-                color: section.accentColor
-              }}  />
+            <PencilSimpleIcon
+              className="size-5 text-[var(--section-accent)] transition-colors group-hover/icon-action:text-[var(--section-accent-contrast)]"
+              aria-hidden
+            />
           </button>
         </div>
       </div>
 
       <div
         ref={setLinksPanelRef}
-        className="relative grid min-h-0 min-w-0 auto-rows-max gap-4 overflow-visible border border-border bg-background/60 p-4 backdrop-blur-sm"
+        className="relative grid min-h-0 min-w-0 auto-rows-max gap-0 overflow-visible border border-border bg-background/60 backdrop-blur-sm"
         style={{
           borderColor: section.accentColor,
           gridTemplateColumns: `repeat(${columnSpan}, max-content)`,
@@ -268,6 +277,7 @@ export function SectionFrame({
               link={link}
               editMode={editMode}
               onEdit={() => onEditLink(link.id)}
+              accentColor={section.accentColor}
             />
           </SectionLinkDraggable>
         ))}
@@ -275,7 +285,7 @@ export function SectionFrame({
           <button
             type="button"
             aria-label="Resize section width"
-            className="absolute right-0 bottom-0 z-40 size-7 translate-x-1/2 translate-y-1/2 cursor-se-resize touch-none rounded-full border-2 border-background shadow-md ring-2 ring-background/90"
+            className="absolute right-0 bottom-0 z-40 size-4 translate-x-1/2 translate-y-1/2 cursor-se-resize touch-none rounded-full border-2 border-background shadow-md ring-2 ring-background/90"
             style={{ backgroundColor: section.accentColor }}
             onPointerDown={(e) => {
               e.preventDefault()

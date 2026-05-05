@@ -10,8 +10,8 @@ const COLUMN_STRIDE = CANVAS_SECTION_COLUMN_WIDTH + CANVAS_GRID_GAP
 export const MAX_CANVAS_COLUMN_SPAN = 64
 
 /** Matches `LinkCard` (80px) + `pr-2` on `SectionLinkDraggable` + `gap-4` between items. */
-export const LINK_CARD_WIDTH_PX = 88
-export const LINK_CARD_GAP_PX = 16
+export const LINK_CARD_WIDTH_PX = 100
+export const LINK_CARD_GAP_PX = 0
 
 /** Narrow shape so callers need not import `Section`. */
 export type CanvasColumnSpanSource = {
@@ -50,9 +50,7 @@ export function getDefaultCanvasSectionPosition(index: number): {
   const row = Math.floor(index / 3)
   return {
     x: CANVAS_GRID_OFFSET + col * COLUMN_STRIDE,
-    y:
-      CANVAS_GRID_OFFSET +
-      row * (CANVAS_SECTION_ROW_HEIGHT + CANVAS_GRID_GAP),
+    y: CANVAS_GRID_OFFSET + row * (CANVAS_SECTION_ROW_HEIGHT + CANVAS_GRID_GAP),
   }
 }
 
@@ -71,10 +69,10 @@ export function linkRowInnerWidthPx(linkColumnSpan: number): number {
 }
 
 /** Horizontal padding (Tailwind `p-4` × 2) on the section outer wrapper. */
-export const SECTION_FRAME_OUTER_PADDING_X = 32
+export const SECTION_FRAME_OUTER_PADDING_X = 0
 
 /** Horizontal padding (Tailwind `p-4` × 2) on the links panel (`SectionFrame` inner card). */
-export const SECTION_LINKS_INNER_PADDING_X = 32
+export const SECTION_LINKS_INNER_PADDING_X = 0
 
 /** Horizontal border (default `border` = 1px L+R) on the links panel. */
 export const SECTION_LINKS_BORDER_X = 2
@@ -84,8 +82,7 @@ export function readHorizontalBorderPx(el: HTMLElement): number {
   const st = getComputedStyle(el)
   const l = Number.parseFloat(st.borderLeftWidth)
   const r = Number.parseFloat(st.borderRightWidth)
-  const sum =
-    (Number.isFinite(l) ? l : 0) + (Number.isFinite(r) ? r : 0)
+  const sum = (Number.isFinite(l) ? l : 0) + (Number.isFinite(r) ? r : 0)
   return sum > 0 ? sum : SECTION_LINKS_BORDER_X
 }
 
@@ -121,10 +118,7 @@ export function canvasColumnSpanFromTargetWidth(
   maxSpan: number = MAX_CANVAS_COLUMN_SPAN
 ): number {
   const w = Math.max(0, linkRowInnerPx)
-  const cap = Math.max(
-    1,
-    Math.min(MAX_CANVAS_COLUMN_SPAN, Math.round(maxSpan))
-  )
+  const cap = Math.max(1, Math.min(MAX_CANVAS_COLUMN_SPAN, Math.round(maxSpan)))
   let best = 1
   let bestDist = Infinity
   for (let s = 1; s <= cap; s++) {

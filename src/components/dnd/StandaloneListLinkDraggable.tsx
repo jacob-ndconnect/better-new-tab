@@ -43,7 +43,7 @@ export function StandaloneListLinkDraggable({
         enabled && isDragging && "opacity-40"
       )}
     >
-      {enabled && (
+      {/* {enabled && (
         <div
           className="pointer-events-none absolute -top-0.5 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-0.5"
           aria-hidden
@@ -55,7 +55,7 @@ export function StandaloneListLinkDraggable({
             />
           ))}
         </div>
-      )}
+      )} */}
       {children}
     </div>
   )

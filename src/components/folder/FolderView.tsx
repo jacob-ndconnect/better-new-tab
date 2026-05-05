@@ -9,7 +9,11 @@ import {
   useSensors,
 } from "@dnd-kit/core"
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core"
-import { ArrowLeftIcon, GearSixIcon, PlusIcon } from "@phosphor-icons/react"
+import {
+  ArrowLeftIcon,
+  PencilSimpleIcon,
+  PlusIcon,
+} from "@phosphor-icons/react"
 import { LinkCard } from "@/components/canvas/LinkCard"
 import { DotBackground } from "@/components/canvas/DotGridBackground"
 import { applyLinkDragEnd } from "@/lib/applyLinkDragEnd"
@@ -57,7 +61,7 @@ function LinkMicroThumb({ link }: { link: Link }) {
   const letter = linkLetter(link.label)
   return (
     <div
-      className="flex size-8 items-center justify-center overflow-hidden rounded-lg text-xs font-semibold text-white"
+      className="flex size-8 items-center justify-center overflow-hidden rounded-full text-xs font-semibold text-white"
       style={
         failed || !src
           ? { backgroundColor: linkMicroHue(link.label) }
@@ -102,7 +106,7 @@ function FolderTile({
       data-folder-tile-id={section.id}
       onClick={onOpen}
       className={cn(
-        "relative flex min-h-[132px] cursor-pointer flex-col rounded-3xl border-2 border-border/80 bg-card/90 p-4 text-left shadow-sm transition-[transform,box-shadow] hover:border-border hover:shadow-md",
+        "relative flex min-h-[132px] cursor-pointer flex-col rounded-none border-2 border-border/80 bg-card/90 p-4 text-left shadow-sm transition-[transform,box-shadow] hover:border-border hover:shadow-md",
         editMode && "cursor-pointer"
       )}
       aria-label={`Open folder ${section.name}`}
@@ -361,7 +365,7 @@ export function FolderView({
                           className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                           aria-label="Edit folder"
                         >
-                          <GearSixIcon className="size-4 cursor-pointer" />
+                          <PencilSimpleIcon className="size-4 cursor-pointer" />
                         </button>
                       )}
                   </div>
@@ -464,7 +468,7 @@ function FolderDetailLinks({
     >
       <div
         data-folder-flip-backdrop
-        className="pointer-events-none absolute inset-0 z-0 rounded-2xl border border-border/60 bg-card/30"
+        className="pointer-events-none absolute inset-0 z-0 rounded-none border border-border/60 bg-card/30"
         aria-hidden
       />
       <LinkDropTargetOverlay
@@ -526,7 +530,7 @@ function FolderDetailLinks({
             onClick={() =>
               isUngrouped ? onAddStandaloneLink?.() : onAddLink?.(section.id)
             }
-            className="flex size-[88px] shrink-0 flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-muted-foreground/30 text-muted-foreground transition-colors hover:border-muted-foreground/50 hover:text-foreground"
+            className="my-auto flex size-[100px] shrink-0 flex-col items-center justify-center gap-2 rounded-none border-2 border-dashed border-muted-foreground/30 text-muted-foreground transition-colors hover:border-muted-foreground/50 hover:text-foreground"
           >
             <PlusIcon className="size-6" />
             <span className="text-xs">Add link</span>
