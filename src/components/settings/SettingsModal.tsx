@@ -128,13 +128,13 @@ export function SettingsModal({
           <div className="flex min-h-0 flex-1 flex-row">
             <TabsList
               variant="line"
-              className="h-auto w-fit min-w-40 shrink-0 flex-col items-stretch justify-start rounded-none border-r bg-transparent p-0"
+              className="flex h-auto w-fit min-w-40 shrink-0 flex-col items-stretch justify-start gap-0 rounded-none border-r bg-transparent p-0"
             >
               {SETTINGS_SECTIONS.map((section) => (
                 <TabsTrigger
                   key={section.id}
                   value={section.id}
-                  className="cursor-pointer justify-start rounded-none border-r-2 border-transparent px-4 py-2 group-data-vertical/tabs:px-4 group-data-vertical/tabs:py-2 data-[state=active]:border-r-2 data-[state=active]:border-primary data-[state=active]:bg-accent/50"
+                  className="inline-flex w-full flex-row items-center gap-2 text-left cursor-pointer justify-start rounded-none border-r-2 border-transparent px-4 py-2 data-[state=active]:border-r-2 data-[state=active]:border-primary data-[state=active]:bg-accent/50"
                 >
                   {section.icon && (
                     <section.icon
@@ -157,11 +157,7 @@ export function SettingsModal({
                     <section.Content />
                   ) : (
                     section.settings?.map((config) =>
-                      renderSetting(
-                        config,
-                        settings,
-                        handleSettingChange
-                      )
+                      renderSetting(config, settings, handleSettingChange)
                     )
                   )}
                 </TabsContent>
