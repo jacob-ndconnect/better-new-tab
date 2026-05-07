@@ -258,7 +258,12 @@ Theme context (dark/light/system), localStorage persistence, system preference l
 - `src/components/ui/popover.tsx`
 - `src/components/ui/input-group.tsx`
 - `src/components/ui/textarea.tsx`
-- `src/components/ui/tabs.tsx`
+- `src/components/ui/tabs.tsx` (shadcn / radix-ui preset — `TabsTrigger`, `TabsContent`, …)
+- `src/components/ui/tabs-classic.tsx` — minimal `@radix-ui/react-tabs` primitives (e.g. Settings)
+- `src/components/ui/tabs-subtle.tsx` — custom index-based tabs (`TabsSubtle`, …)
+- `src/components/ui/tabs-proximity.tsx` — Radix tabs + proximity hover + `TabItem` / `shape` (e.g. edit toolbar)
+- `src/components/ui/slider.tsx` (shadcn preset — multi-thumb API)
+- `src/components/ui/slider-rich.tsx` — custom slider + `SliderComfortable` (used by color picker)
 - `src/components/ui/kbd.tsx`
 - `src/components/ui/select.tsx`
 - `src/components/ui/tooltip.tsx`

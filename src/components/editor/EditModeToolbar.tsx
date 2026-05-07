@@ -6,7 +6,7 @@ import {
 } from "@phosphor-icons/react"
 import type { Icon as PhosphorIcon } from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
-import { Tabs, TabsList, TabItem } from "@/components/ui/tabs"
+import { Tabs, TabsList, TabItem } from "@/components/ui/tabs-proximity"
 import type { IconComponent } from "@/lib/icon-context"
 import { cn } from "@/lib/utils"
 import type { AppState } from "@/types"
@@ -122,7 +122,7 @@ export function EditModeToolbar({
 
         <InputGroup
           className={cn(
-            "f-full w-full max-w-sm cursor-pointer rounded-full",
+            "f-full w-full max-w-sm cursor-pointer rounded-none",
             searchOpen && "opacity-2"
           )}
           onClick={onSearchClick}

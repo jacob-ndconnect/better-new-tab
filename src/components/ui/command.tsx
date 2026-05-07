@@ -9,7 +9,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { InputGroup, InputGroupAddon } from "@/components/ui/input-group"
+import {
+  InputGroup,
+  InputGroupAddon,
+} from "@/components/ui/input-group"
 import { MagnifyingGlassIcon, CheckIcon } from "@phosphor-icons/react"
 
 function Command({
@@ -49,14 +52,12 @@ function CommandDialog({
       </DialogHeader>
       <DialogContent
         className={cn(
-          "top-1/3 translate-y-0 overflow-hidden rounded-4xl p-0",
+          "top-1/3 translate-y-0 overflow-hidden rounded-4xl! p-0",
           className
         )}
         showCloseButton={showCloseButton}
       >
-        <Command className="rounded-md border-0 shadow-none">
-          {children}
-        </Command>
+        {children}
       </DialogContent>
     </Dialog>
   )

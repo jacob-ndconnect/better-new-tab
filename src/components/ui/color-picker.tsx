@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 import { springs } from "@/lib/springs";
 import { fontWeights } from "@/lib/font-weight";
 import { useShape } from "@/lib/shape-context";
-import { Slider } from "@/components/ui/slider";
+import { Slider } from "@/components/ui/slider-rich";
 import { Dropdown, useDropdown } from "@/components/ui/dropdown";
 
 // ---------------------------------------------------------------------------
