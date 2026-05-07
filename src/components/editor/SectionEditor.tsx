@@ -8,7 +8,8 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ColorPickerField } from "./ColorPickerField"
+import { ColorPickerPopover } from "@/components/ui/color-picker"
+import { COLOR_SWATCHES } from "@/lib/color-swatches"
 import type { Section } from "@/types"
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr"
 
@@ -85,11 +86,17 @@ export function SectionEditor({
               onKeyDown={(e) => e.key === "Enter" && handleSave()}
             />
           </div>
-          <ColorPickerField
-            value={accentColor}
-            onChange={setAccentColor}
-            label="Accent color"
-          />
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-medium text-muted-foreground">
+              Accent color
+            </label>
+            <ColorPickerPopover
+              value={accentColor}
+              onValueChange={(_, parsed) => setAccentColor(parsed.hex)}
+              swatches={[...COLOR_SWATCHES]}
+              hideEyedropper
+            />
+          </div>
         </div>
         <DialogFooter className="sm:flex-row sm:justify-end">
           {isEditing && onDelete && (

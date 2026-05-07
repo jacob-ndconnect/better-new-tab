@@ -1410,11 +1410,14 @@ const ColorPickerPopover = forwardRef<HTMLDivElement, ColorPickerPopoverProps>(
         </button>
         {open && rect && typeof document !== "undefined" && createPortal(
           <div
+            data-slot="color-picker-popover-panel"
             style={{
               position: "fixed",
               top: rect.bottom + 6,
               left: rect.left,
-              zIndex: 50,
+              // Above modal dialogs (z-50) and re-enable hits: Radix sets body pointer-events:none.
+              zIndex: 100,
+              pointerEvents: "auto",
             }}
           >
             <AnimatePresence>

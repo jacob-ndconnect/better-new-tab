@@ -206,7 +206,7 @@ Fixed toolbar (top: edit toggle, search affordance with shortcut chips, settings
 
 Dialog for create/edit section.
 
-- **Fields:** Name, accent color (`ColorPickerField`)
+- **Fields:** Name, accent color (`ColorPickerPopover` from `src/components/ui/color-picker.tsx`, `COLOR_SWATCHES`)
 - **Creates:** New section with `crypto.randomUUID()`, default position `{x:40, y:40}`
 - **Delete:** When editing an existing section, destructive footer action removes it from `sections` (same pattern as `LinkEditor`)
 
@@ -262,6 +262,7 @@ Theme context (dark/light/system), localStorage persistence, system preference l
 - `src/components/ui/kbd.tsx`
 - `src/components/ui/select.tsx`
 - `src/components/ui/tooltip.tsx`
+- `src/components/ui/color-picker.tsx` (`ColorPicker`, `ColorPickerPopover`, …)
 
 ---
 
