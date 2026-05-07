@@ -1,12 +1,8 @@
 export const COLOR_SWATCHES = [
-  "#ef4444",
-  "#f97316",
-  "#eab308",
-  "#22c55e",
-  "#06b6d4",
-  "#3b82f6",
-  "#8b5cf6",
-  "#ec4899",
-  "#64748b",
-  "#000000",
+  "#EFABA8",
+  "#FFCAAD",
+  "#F4D850",
+  "#AAF394",
+  "#8FD0EC",
+  "#E1B5FF",
 ] as const

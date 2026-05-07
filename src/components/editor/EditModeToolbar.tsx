@@ -4,7 +4,10 @@ import {
   SquaresFourIcon,
   ListIcon,
 } from "@phosphor-icons/react"
+import type { Icon as PhosphorIcon } from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
+import { Tabs, TabsList, TabItem } from "@/components/ui/tabs"
+import type { IconComponent } from "@/lib/icon-context"
 import { cn } from "@/lib/utils"
 import type { AppState } from "@/types"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group"
@@ -37,6 +40,13 @@ function resetSectionPositions(sections: AppState["sections"]) {
     ...section,
     position: getDefaultCanvasSectionPosition(index),
   }))
+}
+
+function phosphorTabIcon(Icon: PhosphorIcon): IconComponent {
+  return function PhosphorTabIcon({ size = 16, strokeWidth, className }) {
+    const weight = (strokeWidth ?? 1.5) >= 1.75 ? "regular" : "light"
+    return <Icon size={size} weight={weight} className={className} />
+  }
 }
 
 type EditModeToolbarProps = {
@@ -84,49 +94,30 @@ export function EditModeToolbar({
         aria-label="Edit mode toolbar"
       >
         <div className="flex justify-start">
-          <div className="flex items-center rounded-full border border-border bg-background/95 shadow-sm backdrop-blur">
-            <div className="flex items-center rounded-full border border-border bg-background/95 shadow-sm backdrop-blur">
-              <div className="flex">
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  onClick={() => setLayoutMode("canvas")}
-                  className={cn(
-                    "cursor-pointer rounded-full border-0",
-                    layoutMode === "canvas" && "bg-muted"
-                  )}
-                  aria-pressed={layoutMode === "canvas"}
-                >
-                  <SquaresFourIcon className="size-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  onClick={() => setLayoutMode("list")}
-                  className={cn(
-                    "cursor-pointer rounded-full border-0",
-                    layoutMode === "list" && "bg-muted"
-                  )}
-                  aria-pressed={layoutMode === "list"}
-                >
-                  <ListIcon className="size-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  onClick={() => setLayoutMode("folders")}
-                  className={cn(
-                    "cursor-pointer rounded-full border-0",
-                    layoutMode === "folders" && "bg-muted"
-                  )}
-                  aria-pressed={layoutMode === "folders"}
-                  aria-label="Folders layout"
-                >
-                  <FoldersIcon className="size-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
+          <Tabs
+            value={layoutMode}
+            onValueChange={(v) => setLayoutMode(v as AppState["layoutMode"])}
+            className="rounded-none border border-border bg-background/95 shadow-sm backdrop-blur"
+            shape="squared"
+          >
+            <TabsList className="rounded-none border-0 bg-transparent p-1 shadow-none">
+              <TabItem
+                value="canvas"
+                icon={phosphorTabIcon(SquaresFourIcon)}
+                className="rounded-none py-1"
+              />
+              <TabItem
+                value="list"
+                icon={phosphorTabIcon(ListIcon)}
+                className="rounded-none py-1"
+              />
+              <TabItem
+                value="folders"
+                icon={phosphorTabIcon(FoldersIcon)}
+                className="rounded-none py-1"
+              />
+            </TabsList>
+          </Tabs>
         </div>
 
         <InputGroup
@@ -161,7 +152,7 @@ export function EditModeToolbar({
               size={editMode ? "sm" : "icon-sm"}
               onClick={toggleEditMode}
               className={cn(
-                "cursor-pointer rounded-full",
+                "cursor-pointer rounded-none",
                 editMode && "gap-1.5 bg-muted"
               )}
               aria-label={editMode ? "Save changes" : "Edit mode"}
@@ -178,7 +169,7 @@ export function EditModeToolbar({
               variant="ghost"
               size="icon-sm"
               onClick={onSettingsClick}
-              className="cursor-pointer rounded-full"
+              className="cursor-pointer rounded-none"
               aria-label="Open settings"
             >
               <GearIcon className="size-4" weight="regular" />

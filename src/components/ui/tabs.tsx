@@ -1,88 +1,514 @@
-import * as React from "react"
-import { cva, type VariantProps } from "class-variance-authority"
-import { Tabs as TabsPrimitive } from "radix-ui"
+"use client"
 
+import {
+  useRef,
+  useState,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  createContext,
+  useContext,
+  forwardRef,
+  Children,
+  cloneElement,
+  isValidElement,
+  type ComponentPropsWithoutRef,
+} from "react"
+import * as TabsPrimitive from "@radix-ui/react-tabs"
+import { motion, AnimatePresence } from "framer-motion"
+import type { IconComponent } from "@/lib/icon-context"
 import { cn } from "@/lib/utils"
+import { springs } from "@/lib/springs"
+import { fontWeights } from "@/lib/font-weight"
+import { ShapeProvider, useShape, type ShapeVariant } from "@/lib/shape-context"
+import { useProximityHover } from "@/hooks/use-proximity-hover"
 
-function Tabs({
-  className,
-  orientation = "horizontal",
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.Root>) {
-  return (
-    <TabsPrimitive.Root
-      data-slot="tabs"
-      data-orientation={orientation}
-      className={cn(
-        "group/tabs flex gap-2 data-horizontal:flex-col",
-        className
-      )}
-      {...props}
-    />
-  )
+/* ─────────────────────── Contexts ─────────────────────── */
+
+interface TabsValueOrderContextValue {
+  valueOrder: string[]
+  setValueOrder: (order: string[]) => void
+  selectedValue: string | undefined
 }
 
-const tabsListVariants = cva(
-  "group/tabs-list inline-flex w-fit items-center justify-center rounded-4xl p-[3px] text-muted-foreground group-data-horizontal/tabs:h-9 group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col group-data-vertical/tabs:rounded-2xl data-[variant=line]:rounded-none",
-  {
-    variants: {
-      variant: {
-        default: "bg-muted",
-        line: "gap-1 bg-transparent",
+const TabsValueOrderContext = createContext<TabsValueOrderContextValue | null>(
+  null
+)
+
+interface TabsListContextValue {
+  registerTab: (index: number, value: string, el: HTMLElement | null) => void
+  hoveredIndex: number | null
+  selectedValue: string | undefined
+  /** Optimistically set selectedIdx so the indicator moves immediately on click. */
+  setOptimisticIdx: (index: number) => void
+}
+
+const TabsListContext = createContext<TabsListContextValue | null>(null)
+
+function useTabsList() {
+  const ctx = useContext(TabsListContext)
+  if (!ctx) throw new Error("TabItem must be used within a TabsList")
+  return ctx
+}
+
+/* ─────────────────────── Tabs (Root) ─────────────────────── */
+
+interface TabsProps extends Omit<
+  ComponentPropsWithoutRef<typeof TabsPrimitive.Root>,
+  "onValueChange" | "onSelect"
+> {
+  /** Override corner radius for this tab group (scopes a nested shape context). */
+  shape?: ShapeVariant
+  /** Controlled value (takes precedence over selectedIndex). */
+  value?: string
+  /** Called when the active tab changes. */
+  onValueChange?: (value: string) => void
+  /** Index-based controlled alternative. */
+  selectedIndex?: number
+  /** Called with the new index when the active tab changes. */
+  onSelect?: (index: number) => void
+}
+
+const Tabs = forwardRef<HTMLDivElement, TabsProps>(
+  (
+    {
+      shape,
+      value,
+      onValueChange,
+      selectedIndex,
+      onSelect,
+      defaultValue,
+      children,
+      ...props
+    },
+    ref
+  ) => {
+    const [valueOrder, setValueOrder] = useState<string[]>([])
+    const [uncontrolledValue, setUncontrolledValue] = useState<
+      string | undefined
+    >(defaultValue)
+    const updateValueOrder = useCallback((order: string[]) => {
+      setValueOrder((current) => {
+        if (
+          current.length === order.length &&
+          current.every((value, index) => value === order[index])
+        ) {
+          return current
+        }
+        return order
+      })
+    }, [])
+
+    // Resolve value: explicit value > selectedIndex lookup > defaultValue
+    const resolvedValue =
+      value ??
+      (selectedIndex != null ? valueOrder[selectedIndex] : uncontrolledValue)
+
+    const handleValueChange = useCallback(
+      (newValue: string) => {
+        if (value === undefined && selectedIndex == null) {
+          setUncontrolledValue(newValue)
+        }
+        onValueChange?.(newValue)
+        if (onSelect) {
+          const idx = valueOrder.indexOf(newValue)
+          if (idx !== -1) onSelect(idx)
+        }
       },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
+      [onValueChange, onSelect, valueOrder]
+    )
+
+    const root = (
+      <TabsPrimitive.Root
+        ref={ref}
+        value={resolvedValue}
+        onValueChange={handleValueChange}
+        defaultValue={resolvedValue == null ? defaultValue : undefined}
+        activationMode="automatic"
+        {...props}
+      >
+        {shape ? (
+          <ShapeProvider defaultShape={shape}>{children}</ShapeProvider>
+        ) : (
+          children
+        )}
+      </TabsPrimitive.Root>
+    )
+
+    return (
+      <TabsValueOrderContext.Provider
+        value={{
+          valueOrder,
+          setValueOrder: updateValueOrder,
+          selectedValue: resolvedValue,
+        }}
+      >
+        {root}
+      </TabsValueOrderContext.Provider>
+    )
   }
 )
 
-function TabsList({
-  className,
-  variant = "default",
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.List> &
-  VariantProps<typeof tabsListVariants>) {
-  return (
-    <TabsPrimitive.List
-      data-slot="tabs-list"
-      data-variant={variant}
-      className={cn(tabsListVariants({ variant }), className)}
-      {...props}
-    />
-  )
+Tabs.displayName = "Tabs"
+
+/* ─────────────────────── TabsList ─────────────────────── */
+
+type TabsListProps = ComponentPropsWithoutRef<typeof TabsPrimitive.List>
+
+const TabsList = forwardRef<HTMLDivElement, TabsListProps>(
+  ({ children, className, ...props }, ref) => {
+    const containerRef = useRef<HTMLDivElement>(null)
+    const isMouseInside = useRef(false)
+    const shape = useShape()
+    const valueOrderCtx = useContext(TabsValueOrderContext)
+    const [optimisticIdx, setOptimisticIdx] = useState<number | null>(null)
+
+    // Derive value order from children synchronously
+    const values = Children.toArray(children)
+      .filter(isValidElement)
+      .map((child) => (child.props as { value?: string }).value)
+      .filter((v): v is string => typeof v === "string")
+    const valueOrderKey = values.join(",")
+    const setValueOrder = valueOrderCtx?.setValueOrder
+
+    // Report value order up to Tabs root
+    useLayoutEffect(() => {
+      setValueOrder?.(values)
+    }, [setValueOrder, valueOrderKey])
+
+    // Proximity hover
+    const {
+      activeIndex: hoveredIndex,
+      setActiveIndex: setHoveredIndex,
+      itemRects,
+      handlers,
+      registerItem,
+      measureItems,
+    } = useProximityHover(containerRef, { axis: "x" })
+
+    // Register items: bridge from (index, value, el) → registerItem(index, el)
+    const registerTab = useCallback(
+      (index: number, _value: string, el: HTMLElement | null) => {
+        registerItem(index, el)
+      },
+      [registerItem]
+    )
+
+    // Measure on children change
+    useEffect(() => {
+      measureItems()
+    }, [measureItems, children])
+
+    // Remeasure on resize
+    useEffect(() => {
+      const el = containerRef.current
+      if (!el) return
+      const ro = new ResizeObserver(() => measureItems())
+      ro.observe(el)
+      return () => ro.disconnect()
+    }, [measureItems])
+
+    // Track mouse inside
+    const handleMouseMove = useCallback(
+      (e: React.MouseEvent) => {
+        isMouseInside.current = true
+        handlers.onMouseMove(e)
+      },
+      [handlers]
+    )
+
+    const handleMouseLeave = useCallback(() => {
+      isMouseInside.current = false
+      handlers.onMouseLeave()
+    }, [handlers])
+
+    // Focus ring
+    const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
+    const selectedValue = valueOrderCtx?.selectedValue
+    const selectedIdx =
+      selectedValue !== undefined ? values.indexOf(selectedValue) : -1
+
+    useEffect(() => {
+      setOptimisticIdx(selectedIdx >= 0 ? selectedIdx : null)
+    }, [selectedIdx])
+
+    const activeSelectedIdx = optimisticIdx
+    const selectedRect =
+      activeSelectedIdx !== null ? itemRects[activeSelectedIdx] : null
+    const hoverRect = hoveredIndex !== null ? itemRects[hoveredIndex] : null
+    const focusRect = focusedIndex !== null ? itemRects[focusedIndex] : null
+    const isHoveringSelected = hoveredIndex === activeSelectedIdx
+    const isHovering = hoveredIndex !== null && !isHoveringSelected
+
+    // Auto-assign _index to children
+    const indexedChildren = Children.map(children, (child, i) => {
+      if (isValidElement(child)) {
+        return cloneElement(child, { _index: i } as Record<string, unknown>)
+      }
+      return child
+    })
+
+    return (
+      <TabsListContext.Provider
+        value={{
+          registerTab,
+          hoveredIndex,
+          selectedValue,
+          setOptimisticIdx,
+        }}
+      >
+        <TabsPrimitive.List
+          ref={(node) => {
+            ;(
+              containerRef as React.MutableRefObject<HTMLDivElement | null>
+            ).current = node
+            if (typeof ref === "function") ref(node)
+            else if (ref)
+              (ref as React.MutableRefObject<HTMLDivElement | null>).current =
+                node
+          }}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          onFocus={(e) => {
+            const trigger = (e.target as HTMLElement).closest('[role="tab"]')
+            if (!trigger) return
+            const indexAttr = trigger.getAttribute("data-proximity-index")
+            if (indexAttr != null) {
+              const idx = Number(indexAttr)
+              setHoveredIndex(idx)
+              setFocusedIndex(
+                (e.target as HTMLElement).matches(":focus-visible") ? idx : null
+              )
+            }
+          }}
+          onBlur={(e) => {
+            if (containerRef.current?.contains(e.relatedTarget as Node)) return
+            setFocusedIndex(null)
+            if (isMouseInside.current) return
+            setHoveredIndex(null)
+          }}
+          className={cn(
+            "relative inline-flex items-center gap-0 bg-muted p-0 select-none",
+            shape.container,
+            className
+          )}
+          {...props}
+        >
+          {/* Active segment indicator */}
+          {selectedRect && (
+            <motion.div
+              className={cn(
+                "pointer-events-none absolute bg-background shadow-sm dark:bg-white/10",
+                shape.bg
+              )}
+              initial={false}
+              animate={{
+                left: selectedRect.left,
+                width: selectedRect.width,
+                top: selectedRect.top,
+                height: selectedRect.height,
+                opacity: isHovering ? 0.85 : 1,
+              }}
+              transition={{
+                ...springs.moderate,
+                opacity: { duration: 0.08 },
+              }}
+            />
+          )}
+
+          {/* Hover indicator */}
+          <AnimatePresence>
+            {hoverRect && !isHoveringSelected && selectedRect && (
+              <motion.div
+                className={cn(
+                  "pointer-events-none absolute bg-accent/40 dark:bg-white/20",
+                  shape.bg
+                )}
+                initial={{
+                  left: selectedRect.left,
+                  width: selectedRect.width,
+                  top: selectedRect.top,
+                  height: selectedRect.height,
+                  opacity: 0,
+                }}
+                animate={{
+                  left: hoverRect.left,
+                  width: hoverRect.width,
+                  top: hoverRect.top,
+                  height: hoverRect.height,
+                  opacity: 0.4,
+                }}
+                exit={
+                  !isMouseInside.current && selectedRect
+                    ? {
+                        left: selectedRect.left,
+                        width: selectedRect.width,
+                        top: selectedRect.top,
+                        height: selectedRect.height,
+                        opacity: 0,
+                        transition: {
+                          ...springs.moderate,
+                          opacity: { duration: 0.06 },
+                        },
+                      }
+                    : { opacity: 0, transition: { duration: 0.06 } }
+                }
+                transition={{
+                  ...springs.fast,
+                  opacity: { duration: 0.08 },
+                }}
+              />
+            )}
+          </AnimatePresence>
+
+          {/* Focus ring */}
+          <AnimatePresence>
+            {focusRect && (
+              <motion.div
+                className={cn(
+                  "pointer-events-none absolute z-20 border border-[#6B97FF]",
+                  shape.focusRing
+                )}
+                initial={false}
+                animate={{
+                  left: focusRect.left - 2,
+                  top: focusRect.top - 2,
+                  width: focusRect.width + 4,
+                  height: focusRect.height + 4,
+                }}
+                exit={{ opacity: 0, transition: { duration: 0.06 } }}
+                transition={{
+                  ...springs.fast,
+                  opacity: { duration: 0.08 },
+                }}
+              />
+            )}
+          </AnimatePresence>
+
+          {indexedChildren}
+        </TabsPrimitive.List>
+      </TabsListContext.Provider>
+    )
+  }
+)
+
+TabsList.displayName = "TabsList"
+
+/* ─────────────────────── TabItem ─────────────────────── */
+
+interface TabItemProps extends ComponentPropsWithoutRef<
+  typeof TabsPrimitive.Trigger
+> {
+  /** Unique value for this tab. */
+  value: string
+  /** Optional leading icon. */
+  icon?: IconComponent
+  /** Text label. */
+  label?: string
+  /** @internal Auto-assigned by TabsList. */
+  _index?: number
 }
 
-function TabsTrigger({
-  className,
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.Trigger>) {
-  return (
-    <TabsPrimitive.Trigger
-      data-slot="tabs-trigger"
-      className={cn(
-        "relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-xl border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap text-foreground/60 transition-all group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start group-data-vertical/tabs:px-2.5 group-data-vertical/tabs:py-1.5 hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 dark:text-muted-foreground dark:hover:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-active:bg-transparent dark:group-data-[variant=line]/tabs-list:data-active:border-transparent dark:group-data-[variant=line]/tabs-list:data-active:bg-transparent",
-        "data-active:bg-background data-active:text-foreground dark:data-active:border-input dark:data-active:bg-input/30 dark:data-active:text-foreground",
-        "after:absolute after:bg-foreground after:opacity-0 after:transition-opacity group-data-horizontal/tabs:after:inset-x-0 group-data-horizontal/tabs:after:bottom-[-5px] group-data-horizontal/tabs:after:h-0.5 group-data-vertical/tabs:after:inset-y-0 group-data-vertical/tabs:after:-right-1 group-data-vertical/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
-        className
-      )}
-      {...props}
-    />
-  )
+const TabItem = forwardRef<HTMLButtonElement, TabItemProps>(
+  ({ value, icon: Icon, label, _index = 0, className, ...props }, ref) => {
+    const internalRef = useRef<HTMLButtonElement>(null)
+    const { registerTab, hoveredIndex, selectedValue, setOptimisticIdx } =
+      useTabsList()
+
+    useEffect(() => {
+      registerTab(_index, value, internalRef.current)
+      return () => registerTab(_index, value, null)
+    }, [_index, value, registerTab])
+
+    const isSelected = selectedValue === value
+    const isActive = hoveredIndex === _index || isSelected
+
+    return (
+      <TabsPrimitive.Trigger
+        onClick={() => setOptimisticIdx(_index)}
+        ref={(node) => {
+          ;(
+            internalRef as React.MutableRefObject<HTMLButtonElement | null>
+          ).current = node
+          if (typeof ref === "function") ref(node)
+          else if (ref)
+            (ref as React.MutableRefObject<HTMLButtonElement | null>).current =
+              node
+        }}
+        value={value}
+        data-proximity-index={_index}
+        className={cn(
+          "relative z-10 flex cursor-pointer items-center gap-2 border-none bg-transparent px-3 py-1.5 outline-none",
+          !label && "px-1.5",
+          className
+        )}
+        {...props}
+      >
+        {Icon && (
+          <Icon
+            size={16}
+            strokeWidth={isActive ? 2 : 1.5}
+            className={cn(
+              "transition-[color,stroke-width] duration-80",
+              isActive ? "text-foreground" : "text-muted-foreground"
+            )}
+          />
+        )}
+        {label && (
+          <span className="inline-grid text-[13px] whitespace-nowrap">
+            <span
+              className="invisible col-start-1 row-start-1"
+              style={{ fontVariationSettings: fontWeights.semibold }}
+              aria-hidden="true"
+            >
+              {label}
+            </span>
+            <span
+              className={cn(
+                "col-start-1 row-start-1 transition-[color,font-variation-settings] duration-80",
+                isActive ? "text-foreground" : "text-muted-foreground"
+              )}
+              style={{
+                fontVariationSettings: isSelected
+                  ? fontWeights.semibold
+                  : fontWeights.normal,
+              }}
+            >
+              {label}
+            </span>
+          </span>
+        )}
+      </TabsPrimitive.Trigger>
+    )
+  }
+)
+
+TabItem.displayName = "TabItem"
+
+/* ─────────────────────── TabPanel ─────────────────────── */
+
+interface TabPanelProps extends ComponentPropsWithoutRef<
+  typeof TabsPrimitive.Content
+> {
+  /** Must match a TabItem value. */
+  value: string
 }
 
-function TabsContent({
-  className,
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.Content>) {
-  return (
-    <TabsPrimitive.Content
-      data-slot="tabs-content"
-      className={cn("flex-1 text-sm outline-none", className)}
-      {...props}
-    />
-  )
-}
+const TabPanel = forwardRef<HTMLDivElement, TabPanelProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <TabsPrimitive.Content
+        ref={ref}
+        className={cn("outline-none", className)}
+        {...props}
+      />
+    )
+  }
+)
 
-export { Tabs, TabsList, TabsTrigger, TabsContent, tabsListVariants }
+TabPanel.displayName = "TabPanel"
+
+/* ─────────────────────── Exports ─────────────────────── */
+
+export { Tabs, TabsList, TabItem, TabPanel }
+export type { TabsProps, TabsListProps, TabItemProps, TabPanelProps }

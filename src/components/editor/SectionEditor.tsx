@@ -20,7 +20,7 @@ type SectionEditorProps = {
   onDelete?: (sectionId: string) => void
 }
 
-const DEFAULT_COLOR = "#3b82f6"
+const DEFAULT_COLOR = "#83CE6C"
 
 export function SectionEditor({
   open,
